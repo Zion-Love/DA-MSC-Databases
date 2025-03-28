@@ -66,6 +66,8 @@ CREATE TABLE Flight (
     ArrivalAirportId INTEGER NOT NULL,
     AirPlaneId INTEGER NOT NULL,
     AirMiles INTEGER NOT NULL,
+    DepartureTimeUTC DATETIME2,
+    ArrivalTimeUTC DATETIME2
     CreatedDate DATETIME2 NOT NULL,
     DeletedDate DATETIME2,
 
@@ -96,6 +98,6 @@ CREATE TABLE PilotFlight (
 
 
     PRIMARY KEY (PilotId, FlightId),
-    FOREIGN KEY (PilotId) REFERENCES Pilot,
-    FOREIGN KEY (FlightId) REFERENCES Flight
+    FOREIGN KEY (PilotId) REFERENCES Pilot ON DELETE CASCADE,
+    FOREIGN KEY (FlightId) REFERENCES Flight ON DELETE CASCADE
 );

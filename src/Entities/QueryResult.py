@@ -1,14 +1,12 @@
 from db.sqlite import dbConnectionInstance
 
 class QueryResult:
-
-    def __init__(self, query : str):
+    def __init__(self, query : str, *parameters):
         # store query next to result for debugging
         self.query = query
-
         # perform query agaisnt db
         with(dbConnectionInstance.Get_Transaction() as transaction):
-            self.cursor = transaction.execute(query)
+            self.cursor = transaction.execute(query, tuple(parameters))
             self.result = self.cursor.fetchall()
 
 

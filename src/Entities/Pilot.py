@@ -1,6 +1,20 @@
-import EntityBase
-from EntityBase import Column
+from datetime import datetime
+from Entities.EntityBase import EntityBase
+from DataTransferObjects.Mappable import Mappable
+from dataclasses import dataclass
 
-class Pilot(EntityBase):
-    def __init__(self):
-        super().__init__(Pilot)
+@dataclass
+class Pilot(EntityBase, Mappable):
+    Id : int
+    Name : str
+    CreatedDate : datetime
+    DeletedDate : datetime
+
+    def Create(self):
+        self._Create(self)
+
+    def Update(self):
+        self._Update(self)
+
+    def Delete(self):
+        self._Delete(self)

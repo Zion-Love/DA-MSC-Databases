@@ -1,13 +1,9 @@
 
 from typing import List, Any
 from Entities.QueryResult import QueryResult
-from dataclasses import is_dataclass , fields , field
+from dataclasses import fields
 
-'''
-    This is used like an interface really to determine when a dataclass is mappable
-'''
 
-# an Abstract Base Class (ABC) used to determine query result mappable objects
 class Mappable:
     def __init__(self):
         raise TypeError("Mappable is not a instantiatable type, it must be inherited")
@@ -42,12 +38,4 @@ class Mappable:
             result.append(cls(**objectInstanceKwargs))
 
         return result
-    
-    # ovrriding standarad operator in python for printing to console,
-    # means I can define generic method for printing a table like visual to the console 
-    def __repr__(self):
-        # TODO : this will likely need to a list extension for types that inherit from Mappable
-        # print column headers firstly...
-
-        pass
     
