@@ -6,17 +6,22 @@ from Entities.QueryResult import QueryResult
 from DataFrame import DataFrame
 from dataclasses import fields
 
+dbColumnTypeMap = {
+    int : 'INTEGER',
+    str : 'TEXT',
+    datetime : 'DATETIME2'
+}
+
+'''
+    An Abstract Base Class (ABC) Used to template 'Entities' or objects that represent database tables directly
+
+    It contains simple methods to Create , Update and Delete records by reflecting the calling subclass fields / name
+'''
+
 class EntityBase(ABC):
-    '''
-        For EntityBase objects all subclases MUST overide CRUD operations, this is to ensure our python object representation is that of a specific table
-
-        It is similar to a repository although more complex querying logic IE across multiple tables will be performed by repositories
-
-        Basic functions like QueryAll and QueryById are here too since all tables have this functionality
-    '''
     @classmethod
     def QueryAll(cls) -> DataFrame:
-        if(not issubclass(cls,Mappable)):
+        if(not issubclass(cls, Mappable)):
             raise Exception("Entity Base must inherit Mappable")
         qry = f'SELECT * FROM {cls.__name__};'
 
@@ -29,24 +34,44 @@ class EntityBase(ABC):
             raise Exception("Entity Base must inherit Mappable")
         qry = f'SELECT * FROM {cls.__name__} WHERE Id = ?'
 
-        return DataFrame(cls.Map(QueryResult(qry,Id)))
+        return DataFrame(cls.Map(QueryResult(qry,Id)), cls)
     
+
+    # Each of these operations accept a transaction variable , this means
+    # we can bespoke handle dependant operations in the subclass implementation
+    # of the corresponding abstract methods Create, Delete, Update ...
+
+
+    # TODO : investigate creating a decorator function to add this instead of drilling transaction through like this...
     
     # deleted database record that matches in memory record Id
     @classmethod
-    def _Delete(cls, instance):
+    def _Delete(cls, instance, transaction = None):
         # infering soft delete from presence of column DeletedDate
-        with(dbConnectionInstance.Get_Transaction() as transaction):
-            if len([f.name for f in fields(cls) if f.name == "DeletedDate"]) == 0:
-                qry = f'DELETE FROM  {cls.__name__} WHERE Id = ?'
-                transaction.execute(qry, (instance.Id))
-            else:
-                qry = f'UPDATE {cls.__name__} SET DeletedDate = ? WHERE Id = ?'
+        qry = ''
+        softdelete = len([f.name for f in fields(cls) if f.name == "DeletedDate"]) == 1
+        if not softdelete:
+            qry = f'DELETE FROM  {cls.__name__} WHERE Id = ?'
+        else:
+            qry = f'UPDATE {cls.__name__} SET DeletedDate = ? WHERE Id = ?'
+
+        if transaction:
+            if softdelete:
                 transaction.execute(qry, (datetime.now(), instance.Id))
+            else:
+                transaction.execute(qry, (instance.Id,))
+            return 
+
+        with(dbConnectionInstance.Get_Transaction() as transaction):
+                if softdelete:
+                    transaction.execute(qry, (datetime.now(), instance.Id))
+                else:
+                    transaction.execute(qry, (instance.Id,))
 
 
     @classmethod
-    def _Create(cls, instance):
+    def _Create(cls, instance, transaction = None):
+        # The Id column is populated by the database using the Identity Autoincrement column constraints, and then fetched using lastrowid
         if(instance.Id != None):
             raise Exception(f"Entity record for {cls.__name__} already exists with id : {instance.Id} consider calling Update instead")
         
@@ -54,21 +79,30 @@ class EntityBase(ABC):
         qry = f'''
             INSERT INTO {cls.__name__} ({str.join(', ',columns)}) VALUES ({str.join(', ', ['?'] * len(columns))})
         '''
-        with(dbConnectionInstance.Get_Transaction() as transaction):
+        if(transaction != None):
             transaction.execute(qry, tuple([instance[column] for column in columns]))
-            instance.Id = transaction.lastrowid
+        else :
+            with(dbConnectionInstance.Get_Transaction() as transaction):
+                transaction.execute(qry, tuple([instance[column] for column in columns]))
+
+        instance.Id = transaction.lastrowid
 
 
     # Uses our in memory instance to update mathing Id record columns to our in memory instance values
     @classmethod
-    def _Update(cls, instance):
+    def _Update(cls, instance, transaction = None):
         columns = [f.name for f in fields(cls) if f.name != 'Id']
         qry = f'''
             UPDATE {cls.__name__} ({str.join(', ',columns)}) VALUES ({str.join(', ', ['?'] * len(columns))}) WHERE Id = ?
         '''
-        with(dbConnectionInstance.Get_Transaction() as transaction):
-            transaction.execute(qry, tuple([instance[column] for column in columns].append(instance.Id)))
+        if(transaction != None):
+            transaction.execute(qry, tuple([instance[column] for column in columns]))
+        else :
+            with(dbConnectionInstance.Get_Transaction() as transaction):
+                transaction.execute(qry, tuple([instance[column] for column in columns].append(instance.Id)))
 
+
+    # these methods are required overrides for a subclass of EntityBase to be valid
 
     @abstractmethod
     def Create(self, *args, **kwargs):

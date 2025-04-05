@@ -1,17 +1,12 @@
 from db.sqlite import dbConnectionInstance
-from DataTransferObjects.PilotDto import PilotDto
-from repositories.PilotRepository import pilotRepository
-from Entities.EntityMap import entityMap
-from Entities.Pilot import Pilot
-from DataFrame import DataFrame
+import sys
+from cli.Commands.ViewPilots import ViewPilotsCommand
 
 def __main__():
+    print(sys.path)
     dbConnectionInstance.Init_db(refresh=True)
-    pilots = Pilot.QueryAll()
-    print(pilots)
-    pilots[1].Delete()
-    pilots = Pilot.QueryAll()
-    print(pilots)
+    command = ViewPilotsCommand(IncludeDeleted=True, SearchName="The forces")
+
     input()
 
 if __name__ == "__main__" :

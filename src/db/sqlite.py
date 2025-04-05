@@ -101,17 +101,16 @@ class SqliteDbConnection:
         
         with(open(test_data_file, 'r') as testDataFile):
             test_data_sql = testDataFile.read()
-            sql_commands = test_data_sql.split(";")
+            sql_commands = test_data_sql.split("--splitcommand--")
 
             # seperating and completing in a single transaction gives more verbose error result
             # such that I can find the specific command causing issue
             # also auto rolling back should it fail means I dont mutate db state on error
             with(self.Get_Transaction() as transaction):
-                for command in sql_commands:
-                    try:
-                        transaction.execute(command)
-                    except Exception as e:
-                        raise Exception(f"Unexpected Exception executing db command : {command} \n {e}")
+                try:
+                    transaction.executescript(test_data_sql)
+                except Exception as e:
+                    raise Exception(f"Unexpected Exception executing db command : \n {e}")
 
 
 # in python modules act like singletons , meaning when we first import this module

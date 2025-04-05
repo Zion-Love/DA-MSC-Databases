@@ -1,15 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
-from db.MappingObjects import Mappable
+from DataTransferObjects.Mappable import Mappable
 
 '''
     This module contains all of my Data Transfer objects (DTO) related to flight history views
 
-    Ideally you woul use pydantic here to apply validation logic to our data classes
+    Ideally you would use pydantic here to apply validation logic to our data classes
     since python uses dynamica types the annotation here is more of a guide than enforced.
-
-
-    TODO : Create our query layer to fetch this data from database
 '''
 
 @dataclass
@@ -25,11 +22,13 @@ class FlightHistoryDto(Mappable):
     
 
 @dataclass
-class PilotFlightHistory(Mappable):
+class PilotFlightHistoryDto(Mappable):
     PilotId : int
     FlightId : int
     DepartureDestination : str
+    DepartureDestinationCountry: str
     ArrivalDestination : str
+    ArrivalDestinationCountry: str
     DepartureTimeUTC : datetime
     ArrivalTimeUTC : datetime
 

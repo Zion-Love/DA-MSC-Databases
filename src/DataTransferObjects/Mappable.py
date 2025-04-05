@@ -1,5 +1,5 @@
 
-from typing import List, Any
+from typing import Any
 from Entities.QueryResult import QueryResult
 from dataclasses import fields
 
@@ -9,7 +9,7 @@ class Mappable:
         raise TypeError("Mappable is not a instantiatable type, it must be inherited")
 
     @classmethod
-    def Map(cls, queryResult : QueryResult) -> List[Any]:
+    def Map(cls, queryResult : QueryResult) -> list[Any]:
 
         if not isinstance(queryResult, QueryResult):
             raise Exception(f".Map must be called with a queryResult, instead got : {type(queryResult).__name__}")
@@ -27,6 +27,7 @@ class Mappable:
         expectedColumnNames = set([f.name for f in dataClassFields])
         setDifference = incomingColumnNames - expectedColumnNames
         if(len(setDifference) != 0):
+           print(queryResult.query)
            raise Exception(f"dataClassFields and QueryResult do not match : \n QUERY : {incomingColumnNames} \n MAPPING  : {expectedColumnNames}")
         
         # TODO : this could be made faster using a .map call rather than nested looping
@@ -36,6 +37,6 @@ class Mappable:
             for dataField in dataClassFields:
                 objectInstanceKwargs[dataField.name] = queryResult.result[i][incomingColumnIndexMapping[dataField.name]]
             result.append(cls(**objectInstanceKwargs))
-
+        
         return result
     

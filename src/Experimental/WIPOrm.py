@@ -17,6 +17,7 @@ class ColumnConstraint:
         self.Type = Type
         self.value = value
 
+
 class PrimaryKeyConstraint(ColumnConstraint):
     def __init__(self, sourceClass : type, sourceColumn : str):
         self.sourceClass = sourceClass
@@ -38,6 +39,7 @@ class ForeignKeyConstraint(ColumnConstraint):
         self.targetColumn = targetColumn
         self.Name = f"FK_{self.sourceClass.upper()}{self.sourceColumn}_{self.sourceColumn.upper()}{self.targetColumn}"
         super().__init__(self.Name, EColumnConstraintType.ForeignKey)
+
 
 class Column:
     def __init__(self, Name : str, Type : type, constraints : List[ColumnConstraint] = None):
@@ -61,7 +63,7 @@ class Column:
         typeLengthConstraint = ""
         return f"{self.Name} {typeConversionString}"
 
-    def ValidateColumnConstraints(self, constraints : List[ColumnConstraint]):
+    def ValidateColumnConstraints(self, constraints : list[ColumnConstraint]):
             hasPrimaryKey , hasForeignKey = False
             for constraint in constraints:
                 if((hasPrimaryKey or hasForeignKey) and 

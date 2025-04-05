@@ -1,6 +1,6 @@
 from datetime import datetime
 from repositories.RepositoryBase import RepositoryBase
-from DataTransferObjects.FlightHistory import PilotFlightHistory
+#from DataTransferObjects.FlightHistory import PilotFlightHistory
 from Entities.QueryResult import QueryResult
 from Entities.Pilot import Pilot
 from DataFrame import DataFrame
@@ -22,28 +22,50 @@ class PilotRepository(RepositoryBase):
         super().__init__()
         pass
 
-    def QueryById(self, pilotId : int) -> DataFrame:
-        query = f'''
-            SELECT * from Pilot p WHERE p.Id = ?;
-        '''
-        return DataFrame(Pilot.Map(QueryResult(query, (pilotId)).AssertSingleOrNull()))
+
+    def QueryById(self, pilotId : int | list[int]) -> DataFrame:
+        if(pilotId == None):
+            raise Exception("PilotRepository.QueryById requires at least 1 Id")
+        params = []
+        query = f"""
+            SELECT * from Pilot p
+        """
+        if(isinstance(pilotId, int)):
+            query += " WHERE p.Id = ?"
+            return DataFrame(Pilot.Map(QueryResult(query, (pilotId)), type(Pilot)))
+        elif(len(pilotId) > 1):
+            query += ' WHERE p.Id IN ?'
+            params = fr"({str.join(', ', pilotId)})"
+            return DataFrame(Pilot.Map(QueryResult(query, params), type(Pilot)))
+
 
     def QueryByName(self, name : str) -> DataFrame:
-        query = f'''
-            SELECT * from Pilot p WHERE p.\"Name\" = ?;
-        '''
-        return DataFrame(Pilot.Map(QueryResult(query, (name)).AssertSingleOrNull()))
+        query = r"""
+            SELECT * FROM Pilot p WHERE p.'Name' = ?
+        """
+        return DataFrame(Pilot.Map(QueryResult(query, (name), Pilot)))
     
 
-    def QueryActivePilots(self, active : bool = True) -> DataFrame: 
+    def QueryPilots(self, showDeleted : bool = True, partialSearchKey: str = None) -> DataFrame: 
+        params = []
         query = f'''
-            SELECT * from Pilot p WHERE p.DeletedDate is ?
+            SELECT * FROM Pilot p
         '''
-        return DataFrame(Pilot.Map(QueryResult(query, (active)).AssertSingleOrNull()))
+        if not showDeleted:
+            query += 'WHERE p.DeletedDate IS NULL'
+        if partialSearchKey != None:
+            if not showDeleted:
+                query += ' AND '
+            else:
+                query += ' WHERE '
+            query += " p.Name LIKE ?"
+            params.append(f"%{partialSearchKey}%")
+        return DataFrame(Pilot.Map(QueryResult(query, *params)), Pilot)
     
 
-    def QueryPilotFlightHistory(self, 
+    def QueryPilotFlightSchedule(self, 
             pilotId : int, 
+            includeDeletedFlights: bool = False,
             startDate : datetime = None, 
             endDate : datetime = None) -> DataFrame:
         qry = '''
@@ -66,8 +88,10 @@ class PilotRepository(RepositoryBase):
         if endDate: 
             qry += ' AND p.CreatedDate <= ?'
             params.append(endDate)
+        if not includeDeletedFlights:
+            qry += ' AND f.DeletedDate IS NULL'
         
-        return DataFrame(PilotFlightHistory.Map(QueryResult(qry, tuple(params))))
+        return DataFrame(PilotFlightHistory.Map(QueryResult(qry, tuple(params), PilotFlightHistory)))
 
 
 

@@ -4,9 +4,13 @@ class QueryResult:
     def __init__(self, query : str, *parameters):
         # store query next to result for debugging
         self.query = query
+        self.parameters = tuple(parameters)
         # perform query agaisnt db
         with(dbConnectionInstance.Get_Transaction() as transaction):
-            self.cursor = transaction.execute(query, tuple(parameters))
+            if not parameters:
+                self.cursor = transaction.execute(query)
+            else :
+                self.cursor = transaction.execute(query, tuple(parameters))
             self.result = self.cursor.fetchall()
 
 

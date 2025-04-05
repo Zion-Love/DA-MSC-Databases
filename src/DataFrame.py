@@ -14,20 +14,32 @@ from dataclasses import fields
     should I ever need to though I could write Pivot / ordering / aggregation function logic here to perform on in-memory data
 
     but for this project I doubt I would need to do that...
+
+
+    TODO : extend this class to have an index column, that way custom DTos can be mapped by specifying the index column
+        such that we have a resulting dictionary that we can provide expected values to search for records
 '''
 
 class DataFrame:
+    # Requires a provided mappable type, though
+    def __init__(self, data : list[Mappable], _type : Mappable):
 
-    def __init__(self, data : list[Any]):
-        self.type = type(data[0])
+        if(not issubclass(_type, Mappable)):
+            raise Exception("A Dataframe can only be constructed using a Mappable subclass")
+        
+        self.type = _type
 
+        # construct an empty dataframe using the Mappable field names
+        # will silently handle empty query results
+        if len(data) == 0:
+            self.data = []
+            return
+        
         if(not all(type(d) == self.type for d in data)):
-            raise Exception("Cannot create dataframe using collection with various types")
+            raise Exception(f"Data supllied to DataFrame does not match its assigned type {self.type}")
 
-        if(not all(issubclass(type(x),Mappable) for d in data)):
-            raise Exception("DataFrame can only be instantiated using a list of all Mappable objects")
         self.data = data
-
+        
 
     def remove(self, index : int):
         self.data.remove(self.data[index])
@@ -44,7 +56,11 @@ class DataFrame:
         # firstly convert to single dictionary using dictionary / list comprehension
         # this will result in a dictionary where each column name has a list of all the value from each object instance
         # in the same order as the original data set
-        dataDict = {column.name : [item.__getattribute__(column.name) for item in self.data] for column in fields(self.data[0])}
+        if self.data == []:
+            # no data so just print the column headers
+            dataDict = {column.name : [] for column in fields(self.type)}    
+        else:
+            dataDict = {column.name : [item.__getattribute__(column.name) for item in self.data] for column in fields(self.type)}
         tableData = zip(*[value for key ,value in dataDict.items()])
         return tabulate(tableData, headers=dataDict.keys(), floatfmt=".2f",missingval='-')
 
@@ -52,6 +68,6 @@ class DataFrame:
     # operator overload for calling DataFrame[index] to retrive item from DataFrame.data also works with DataFrame[x:y]
     def __getitem__(self, index):
         if(isinstance(index, slice)):
-            return DataFrame(self.data[index.start:index.stop:index.step])
+            return DataFrame(self.data[index.start:index.stop:index.step], self.type)
         
         return self.data[index]

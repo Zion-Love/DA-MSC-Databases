@@ -1,4 +1,10 @@
-from EntityBase import EntityBase, Column, MissingColumnException , ForeignKeyConstraint , PrimaryKeyConstraint
+from Entities.EntityBase import (
+    EntityBase, 
+    Column, 
+    MissingColumnException, 
+    ForeignKeyConstraint, 
+    PrimaryKeyConstraint
+)
 from typing import List, enum, Any
 import inspect
 import re
@@ -56,12 +62,11 @@ class QueryBasic:
 
 
       
-
-
 # likely only need these join types to translate
 class EJoinType(enum):
     Left = "LEFT JOIN"
     Right = "RIGHT JOIN"
+
 
 class JoinCondition:
     def __init__(self, sourceEntity : EntityBase, 
