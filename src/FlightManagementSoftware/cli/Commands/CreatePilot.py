@@ -1,7 +1,7 @@
 from InputValidator import (
     AssertStringNotEmpty
 )
-from CommandHandler import CommandHandler
+import CommandHandler
 from CommandParser import CommandParser
 from Entities.Pilot import Pilot
 from argparse import ArgumentParser

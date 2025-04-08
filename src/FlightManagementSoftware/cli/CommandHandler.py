@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields, MISSING
 
-from src.Exceptions.ValidationException import ValidationException
+from Exceptions.ValidationException import ValidationException
 '''
     Abstract base class for our cli command objects , this will allow me to have command specific argument validation
     but the overall process is callable through the base type.

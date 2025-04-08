@@ -1,6 +1,7 @@
 from db.sqlite import dbConnectionInstance
 import sys
-from cli.Commands.ViewPilots import ViewPilotsCommand
+from FlightManagementSoftware.cli.Commands.ViewPilots import ViewPilotsCommand
+
 
 def __main__():
     print(sys.path)
