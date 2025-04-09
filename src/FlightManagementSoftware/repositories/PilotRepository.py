@@ -3,6 +3,7 @@ from FlightManagementSoftware.repositories.RepositoryBase import RepositoryBase
 from FlightManagementSoftware.Entities.QueryResult import QueryResult
 from FlightManagementSoftware.Entities.Pilot import Pilot
 from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
+from FlightManagementSoftware.DataTransferObjects.FlightHistory import PilotFlightHistoryDto
 
 '''
     Repositories for this project are a way of creating more complex queries requiring multiple tables,
@@ -31,7 +32,7 @@ class PilotRepository(RepositoryBase):
         """
         if(isinstance(pilotId, int)):
             query += " WHERE p.Id = ?"
-            return DataFrame(Pilot.Map(QueryResult(query, (pilotId)), type(Pilot)))
+            return DataFrame(Pilot.Map(QueryResult(query, pilotId), type(Pilot)))
         elif(len(pilotId) > 1):
             query += ' WHERE p.Id IN ?'
             params = fr"({str.join(', ', pilotId)})"
@@ -68,8 +69,8 @@ class PilotRepository(RepositoryBase):
             startDate : datetime = None, 
             endDate : datetime = None) -> DataFrame:
         qry = '''
-            SELECT p.Id as PilotId, p.Name as PilotName
-             
+            SELECT p.Id as PilotId, p.Name as PilotName, 
+            fromD.Name as FromDestination ,toD.Name as ToDestination, f.DepartureTimeUTC as DepartureTime, f.ArrivalTimeUTC as ArrivalTime
             FROM Pilot p
 
             JOIN PilotFlight pf
@@ -77,8 +78,19 @@ class PilotRepository(RepositoryBase):
 
             JOIN Flight f
                 on f.Id = pf.FlightId
+                
+            JOIN FlightPath fp 
+                on fp.Id = f.FlightPathId
+                
+            JOIN Destination toD 
+                on toD.Id  = fp.ToDestinationId
+                
+            JOIN Destination fromD
+                on fromD.Id = fp.FromDestinationId
 
             WHERE p.Id = ?
+
+            ORDER BY f.DepartureTimeUTC ASC
         '''
         params = [pilotId]
         if startDate: 
@@ -90,7 +102,7 @@ class PilotRepository(RepositoryBase):
         if not includeDeletedFlights:
             qry += ' AND f.DeletedDate IS NULL'
         
-        return DataFrame(PilotFlightHistory.Map(QueryResult(qry, tuple(params), PilotFlightHistory)))
+        return DataFrame(PilotFlightHistoryDto.Map(QueryResult(qry, params), PilotFlightHistoryDto))
 
 
 

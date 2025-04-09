@@ -19,15 +19,9 @@ class ViewPilotsCommand(CommandHandler):
     IncludeDeleted: bool = True
     PilotId : int | list[int] = None # TODO implement this filter
 
-    def __post_init__(self):
-        self.Validate()
-        self.Handle()
-
-
     def Validate(self):
         if(self.PilotId):
             assert(self.SearchName == None) , "Cannot provide a SearchName when searching by Id(s)"
-            assert(self.IncludeDeleted == None), "Cannot Filter based on Deleted when searching by Id(s)"
 
         assert(isinstance(self.IncludeDeleted,bool))
         assert(self.SearchName == None or isinstance(self.SearchName,str))
@@ -35,7 +29,6 @@ class ViewPilotsCommand(CommandHandler):
 
     def Handle(self):
         pilots : DataFrame
-
         if self.PilotId:
             pilots = pilotRepository.QueryById(self.PilotId)
 
@@ -49,7 +42,7 @@ class ViewPilotsCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser : ArgumentParser) -> ArgumentParser:
-        parser.add_argument('--IncludeDeleted', type=bool, help='Toggles weather to show deleted pilots or not', dest='IncludeDeleted')
-        parser.add_argument('--SearchName', type=str, help='Filters results fuzzy matching on name', dest='SearchName')
-        parser.add_argument('--PilotId', nargs='+', type=int, help="Pilot Id's to search for")
-
+        parser.add_argument('--IncludeDeleted', nargs='?',type=bool, help='Toggles weather to show deleted pilots or not', dest='IncludeDeleted')
+        parser.add_argument('--SearchName', nargs='?',type=str, help='Filters results fuzzy matching on name', dest='SearchName')
+        parser.add_argument('--PilotId', nargs='*', type=int, help="Pilot Id's to search for")
+        parser.set_defaults(command=self.run)

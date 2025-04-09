@@ -31,10 +31,10 @@ CREATE TABLE Airline (
 
 
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (1,"AirTrainUK", DATETIME('now'), NULL);
-
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (2,"FlyingLion", DATETIME('now'), NULL);
-
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (3,"OurPlanesAlmostDontCrashCo", DATETIME('now'), NULL);
+INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (4,"Tykes plastic planes", DATETIME('now'), NULL);
+INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (5,"Flying Portaloo", DATETIME('now'), NULL);
 
 
 
@@ -92,23 +92,27 @@ CREATE TABLE FlightPath (
 -- London Stansted -> san sebastian
 INSERT INTO FlightPath (Id, FromDestinationId, ToDestinationId, DistanceKm, Active, CreatedDate, DeletedDate) VALUES 
     (1, 1, 4, 930, 1, DATETIME('2001-03-21'), NULL);
-
 -- San Sebastian -> London Stansted
 INSERT INTO FlightPath (Id, FromDestinationId, ToDestinationId, DistanceKm, Active, CreatedDate, DeletedDate) VALUES 
-    (2, 4, 1, 930, 1, DATETIME('2001-03-21'), NULL);
-
+    (2, 4, 1, 930, 1, DATETIME('1956-02-12'), NULL);
 -- Madrid -> Heathrow
 INSERT INTO FlightPath (Id, FromDestinationId, ToDestinationId, DistanceKm, Active, CreatedDate, DeletedDate) VALUES 
-    (3, 4, 1, 930, 1, DATETIME('2001-03-21'), NULL);
+    (3, 5, 2, 1000, 1, DATETIME('2001-03-22'), NULL);
+-- Heathrow -> Madrid
+INSERT INTO FlightPath (Id, FromDestinationId, ToDestinationId, DistanceKm, Active, CreatedDate, DeletedDate) VALUES 
+    (4, 2, 5, 1000, 1, DATETIME('2001-03-21'), NULL);
+-- Madrid -> San Sebastian
+INSERT INTO FlightPath (Id, FromDestinationId, ToDestinationId, DistanceKm, Active, CreatedDate, DeletedDate) VALUES 
+    (5, 5, 4, 452, 1, DATETIME('2000-07-08'), NULL);
 
 
 CREATE Table Airplane (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ModelNumber NVARCHAR(200) NOT NULL, -- using NVARCHAR here since models could vary from manufacture in format , some maybe int , some GUID etc...
+    ModelNumber NVARCHAR(200) NOT NULL, 
     ManufacturedDate DATETIME2 NOT NULL, 
     LastServiceDate DATETIME2 NOT NULL, -- For newly added planes this will match CreatedDate
     PassengerCapacity INTEGER NOT NULL,
-    CurrentAirportId INTEGER, -- NULL for deleted airplanes / in service...
+    CurrentAirportId INTEGER,
     CreatedDate DATETIME2 NOT NULL,
     DeletedDate DATETIME2,
 
@@ -117,6 +121,14 @@ CREATE Table Airplane (
 
 INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
     VALUES (1, '1to87987ijh982', DATETIME('2001-01-01'), date('now'), 160, null, date('now'), null);
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+    VALUES (2, 'aksnf92930g31', DATETIME('1987-01-01'), date('now'), 180, null, date('now'), null);
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+    VALUES (3, 'klsmv92g02b009', DATETIME('1999-12-25'), date('now'), 200, null, date('now'), null);
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+    VALUES (4, 'qgm29mg0393', DATETIME('2020-08-30'), date('now'), 80, null, date('now'), null);
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+    VALUES (5, '08meb08nb404', DATETIME('2010-07-02'), date('now'), 4, 5, date('now'), null);
 
 
 -- Pilots in most cases are employed by specific airlines , except in the case of private flights
@@ -126,11 +138,10 @@ INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, Passen
 CREATE TABLE Pilot (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     "Name" NVARCHAR(100) NOT NULL,
-    AirlineId INTEGER NOT NULL,
+    AirlineId INTEGER,
     CreatedDate DateTime2 NOT NULL,
     DeletedDate DateTime2
 );
-
 
 INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (1, 'Steve Buscemi', 1, DATETIME('now'), NULL);
 INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (2, 'Daniel Radcliffe', 2, DATETIME('now'), NULL);
@@ -154,6 +165,15 @@ CREATE TABLE Flight (
 
 INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeUTC, CreatedDate, DeletedDate) VALUES
     (1, 1, 1, DATETIME('2025-06-02 12:45:00'), null, date('now'), null);
+INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeUTC, CreatedDate, DeletedDate) VALUES
+    (2, 2, 1, DATETIME('2025-10-02 12:00:00'), null, date('now'), null);
+INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeUTC, CreatedDate, DeletedDate) VALUES
+    (3, 3, 2, DATETIME('2020-01-23 12:45:00'), DATETIME('2020-01-23 15:00:32'), DATETIME('2020-01-01'), null);
+INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeUTC, CreatedDate, DeletedDate) VALUES
+    (4, 4, 2, DATETIME('2020-02-01 09:36:00'), DATETIME('2020-02-01 12:32:22'), date('now'), null);
+INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeUTC, CreatedDate, DeletedDate) VALUES
+    (5, 5, 3, DATETIME('2026-02-01 10:28:12'), null, date('now'), null);
+
 
 -- This table details a many to many for pilot assignment to flights
 -- I am aware most flights have 2-3 pilots but doing it this way allows us to 
@@ -166,3 +186,14 @@ CREATE TABLE PilotFlight (
     FOREIGN KEY (PilotId) REFERENCES Pilot,
     FOREIGN KEY (FlightId) REFERENCES Flight
 );
+
+
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (1,1);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (2,1);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (1,2);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (2,2);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (3,3);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (4,3);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (3,4);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (4,4);
+INSERT INTO PilotFlight (PilotId, FlightId) VALUES (5,5);

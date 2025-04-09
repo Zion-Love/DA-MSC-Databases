@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from abc import ABC, abstractmethod
+from dataclasses import fields
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 
 
@@ -19,10 +20,15 @@ class CommandParser(ABC):
     def __init__(self, handler : CommandHandler):
         if(not issubclass(handler,CommandHandler)):
             raise Exception(f"CommandParser requires a CommandHandler to initialize")
-        self.handler = type(handler)
+        self.handler = handler
         
+
     def run(self, **kwargs):
-        self.handler().FromKwargs(**kwargs)
+        handlerFields = [f.name for f in fields(self.handler)]
+        filteredKwargs = {k : v for k,v in kwargs.items() if k in handlerFields and v != None}
+        print(f"Calling command : {self.handler.__name__} with args : {filteredKwargs}")
+        self.handler(**filteredKwargs)
+
 
     @abstractmethod
     def BuildCommandArgs(self, parser : ArgumentParser) -> ArgumentParser:

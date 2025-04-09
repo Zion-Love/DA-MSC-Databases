@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import os
 
 setup (
     name='FlightManagementSoftware',
@@ -17,4 +18,8 @@ setup (
             "FlightManagementSoftware = FlightManagementSoftware.cli.clientry:main",
         ]
     },
+    package_data={
+        'FlightManagementSoftware': ['sql/CreateTestData.sql', 'db/database.sqllite3'],
+    },
+    python_requires=">=3.10"
 )

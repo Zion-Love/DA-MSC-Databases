@@ -7,50 +7,34 @@ from typing import Any
 '''
 
 def AssertIsPositiveInteger(val: Any) -> int:
-    try:
-        integer = int(val) if val.isdecimal() else None
-        if(integer == None or integer < 0):
-            raise Exception(f"Expected a positive integer , instead got : {val}")
-        return integer
-    except Exception as e:
-        print(e)
+    if(val == None or val < 0):
+        raise Exception(f"Expected a positive integer , instead got : {val}")
+    return val
+
 
 
 def AssertStringIsOneOf(val: Any, validStrings: list[str]) -> str:
-    try:
-        if not val in validStrings:
-            raise Exception(f"Expected string to be one of {validStrings} instead got {val}")
-        return val
-    except Exception as e:
-        print(e)
-        raise e
+    if not val in validStrings:
+        raise Exception(f"Expected string to be one of {validStrings} instead got {val}")
+    return val
 
 
 # for the sake of this applications consistency I will be expecting all datetimes to be in the format dd-mm-yyyy HH:MM:SS 
 def AssertDateTimeString(val: Any) -> datetime:
     expectedFormat = 'dd-mm-yyyy HH:MM:SS'
-    try:
-        dt = datetime.strptime(val, expectedFormat)
-        return dt
-    except Exception as e:
-        print(e)
-        raise e
+    dt = datetime.strptime(val, expectedFormat)
+    return dt
 
 
 def AssertStringIsBoolean(val : Any) -> bool:
-    try:
-        if(isinstance(val, str)):
-            lowercaseVal = val.lower()
+    if(isinstance(val, str)):
+        lowercaseVal = val.lower()
 
-            if lowercaseVal in ['true','yes']:
-                return True
-        
-            if lowercaseVal in ['false', 'no']:
-                return False
-
-    except Exception as e:
-        print(e)
-        raise e
+        if lowercaseVal in ['true','yes']:
+            return True
+    
+        if lowercaseVal in ['false', 'no']:
+            return False
 
 
 def AssertStringNotEmpty(val : Any) -> str:

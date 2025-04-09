@@ -6,19 +6,18 @@ from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 
 @dataclass
 class Pilot(EntityBase, Mappable):
-    Id : int
     Name : str
+    Id : int = None
     AirlineId : int = None
     CreatedDate : datetime = None
     DeletedDate : datetime = None
 
     def Create(self):
-        self._Create(self)
+        Pilot._Create(self)
 
 
     def Update(self):
         self._Update(self)
-
 
     # for Pilot if we are softdeleting we still need to clean up
     # PilotFlight to unassign this pilot from all their current flights

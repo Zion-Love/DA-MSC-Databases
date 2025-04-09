@@ -1,0 +1,2 @@
+include FlightManagementSoftware/sql/CreateTestData.sql
+include FlightManagementSoftware/db/database.sqllite3

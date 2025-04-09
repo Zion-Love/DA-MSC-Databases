@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
+from FlightManagementSoftware.cli import CommandParser
 
 '''
     This command will read and show all the flight paths
@@ -13,11 +14,22 @@ from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 
 @dataclass
 class ViewFlightPathsCommand(CommandHandler):
-    FilterCountryCodes: list[str] = None
-    ShowInactivePaths: bool = False
+    filterCountryCodes: list[str] = None
+    showInactivePaths: bool = False
     
     def Validate(self):
         raise NotImplementedError()
     
     def Handle(self):
         raise NotImplementedError()
+
+
+# # TODO :
+# class ViewFlightPathsCommandParser(CommandParser):
+#     def __init__(self):
+#         super().__init__(ViewFlightPathsCommand)
+
+
+#     def BuildCommandArgs(self, parser):
+#         parser.set_defaults(command=self.run)
+    

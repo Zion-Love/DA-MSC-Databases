@@ -80,10 +80,10 @@ class EntityBase(ABC):
             INSERT INTO {cls.__name__} ({str.join(', ',columns)}) VALUES ({str.join(', ', ['?'] * len(columns))})
         '''
         if(transaction != None):
-            transaction.execute(qry, tuple([instance[column] for column in columns]))
+            transaction.execute(qry, tuple([getattr(instance,column) for column in columns]))
         else :
             with(dbConnectionInstance.Get_Transaction() as transaction):
-                transaction.execute(qry, tuple([instance[column] for column in columns]))
+                transaction.execute(qry, tuple([getattr(instance,column) for column in columns]))
 
         instance.Id = transaction.lastrowid
 
@@ -105,16 +105,16 @@ class EntityBase(ABC):
     # these methods are required overrides for a subclass of EntityBase to be valid
 
     @abstractmethod
-    def Create(self, *args, **kwargs):
+    def Create(self):
         raise NotImplementedError()
     
 
     @abstractmethod
-    def Update(self, *args, **kwargs):
+    def Update(self):
         raise NotImplementedError()
     
 
     @abstractmethod
-    def Delete(self, *args, **kwargs):
+    def Delete(self):
         raise NotImplementedError()
     

@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Connection, Cursor
 from contextlib import contextmanager
 import os
+import pkg_resources
 from typing import Generator
 
 
@@ -25,7 +26,9 @@ from typing import Generator
 class SqliteDbConnection:
     def __init__(self):
         self.relative_path : str = os.path.dirname(__file__)
+        self.createTestDataResouce = 'sql/CreateTestData.sql'
         self.conn : Connection = None
+        self.Init_db(refresh=False)
 
     def Is_Online(self) -> bool:
         try:
@@ -37,6 +40,7 @@ class SqliteDbConnection:
             print("Database connection not online")
             return False
     
+
     # used with using(db.Get_transaction() as transaction)
     # to create db sesssions for multiple statement execution and allowing
     # us to provide rollback operations to an entire transaction on failure
@@ -53,18 +57,17 @@ class SqliteDbConnection:
             self.conn.commit()
         except Exception as e:
             self.conn.rollback()
-            print("Exception occured in transaction block, rolling back...")
+            print(f"Exception {e} occured in transaction block, rolling back...")
             raise e
         finally:
             cursor.close()
 
 
-    # TODO : Refresh should not delete immediately , it should be a full db swap to ensure we dont delete data
-    # BEFORE having a replacement, just generally better practice
-    def Init_db(self, refresh : bool = False):
+    def Init_db(self, refresh : bool = True):
         # using relative path to keep database contained in same directory as project
         db_file = self.relative_path + '/database.sqlite3'
-
+        print("Initisalising db")
+        print(db_file)
         if(not os.path.isfile(db_file)):
             print("Could not find existing database file , creating new one...")
             refresh = True
@@ -73,7 +76,11 @@ class SqliteDbConnection:
         # Without proper ORM reflection here we dont neccessarily know if our db matches the expected tables in our application
         # Honestly I would never do this with raw sql , even using a db first setup I would want to run a test reflecting the db 
         # to ensure our code tables etc match that of our db
-        if(not refresh): return
+        if(refresh == False): 
+            print("refresh not chosen db initialized")
+            return
+        
+        print("tearing down db...")
 
         # Query to see if database contains any data currently
         query : str = "SELECT COUNT(*) from sqlite_master WHERE type='table';"
@@ -94,11 +101,12 @@ class SqliteDbConnection:
 
         # Refference to a hardcoded sql file containing all the setup requirements for the database
         # things like tble definitions and test data used by the application
-        test_data_file : str =  os.path.dirname(__file__).replace('/db', '/sql/CreateTestData.sql')
+        test_data_file : str = pkg_resources.resource_filename('FlightManagementSoftware',self.createTestDataResouce)
 
         if(not os.path.isfile(test_data_file)):
             raise Exception("Cannot find ../db/CreateTestData.sql db initialization aborted")
         
+        print("building up database...")
         with(open(test_data_file, 'r') as testDataFile):
             test_data_sql = testDataFile.read()
             sql_commands = test_data_sql.split("--splitcommand--")
@@ -113,10 +121,4 @@ class SqliteDbConnection:
                     raise Exception(f"Unexpected Exception executing db command : \n {e}")
 
 
-# in python modules act like singletons , meaning when we first import this module
-# we are instantiating our db connection
-# and we should be able to just refference this variable across our application now 
-# the disadvantage of this would be scalability
-# this does NOT allow for concurrent db connections , which would require proper handling of asynchronous events 
-# and potential race conditions in read/write operation anyway, way too out of scope for this project
 dbConnectionInstance = SqliteDbConnection()
