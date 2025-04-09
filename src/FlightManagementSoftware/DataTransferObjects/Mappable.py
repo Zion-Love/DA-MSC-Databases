@@ -1,8 +1,7 @@
 
 from typing import Any
-from Entities.QueryResult import QueryResult
 from dataclasses import fields
-
+from FlightManagementSoftware.Entities.QueryResult import QueryResult
 
 class Mappable:
     def __init__(self):

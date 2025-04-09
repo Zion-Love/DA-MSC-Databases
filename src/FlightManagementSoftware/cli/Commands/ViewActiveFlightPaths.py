@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from cli.CommandHandler import CommandHandler
+from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 
 '''
     This command will read and show all the flight paths

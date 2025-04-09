@@ -1,9 +1,8 @@
 from datetime import datetime
-from repositories.RepositoryBase import RepositoryBase
-#from DataTransferObjects.FlightHistory import PilotFlightHistory
-from Entities.QueryResult import QueryResult
-from Entities.Pilot import Pilot
-from DataFrame import DataFrame
+from FlightManagementSoftware.repositories.RepositoryBase import RepositoryBase
+from FlightManagementSoftware.Entities.QueryResult import QueryResult
+from FlightManagementSoftware.Entities.Pilot import Pilot
+from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
 
 '''
     Repositories for this project are a way of creating more complex queries requiring multiple tables,

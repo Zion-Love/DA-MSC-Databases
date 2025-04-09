@@ -1,16 +1,16 @@
 from datetime import datetime
-from Entities.EntityBase import EntityBase
-from DataTransferObjects.Mappable import Mappable
-from db.sqlite import dbConnectionInstance
 from dataclasses import dataclass
+from FlightManagementSoftware.db.sqlite import dbConnectionInstance
+from FlightManagementSoftware.Entities.EntityBase import EntityBase
+from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 
 @dataclass
 class Pilot(EntityBase, Mappable):
     Id : int
     Name : str
-    AirlineId : int
-    CreatedDate : datetime
-    DeletedDate : datetime
+    AirlineId : int = None
+    CreatedDate : datetime = None
+    DeletedDate : datetime = None
 
     def Create(self):
         self._Create(self)

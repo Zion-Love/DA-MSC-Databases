@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
-import EntityBase
-from DataTransferObjects.Mappable import Mappable
+from FlightManagementSoftware.Entities import EntityBase
+from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 
 @dataclass
 class Destination(EntityBase, Mappable):

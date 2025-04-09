@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
-from DataFrame import DataFrame
-from cli.CommandHandler import CommandHandler
-from repositories.PilotRepository import pilotRepository
+from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
+from FlightManagementSoftware.cli.CommandHandler import CommandHandler
+from FlightManagementSoftware.repositories.PilotRepository import pilotRepository
 
 '''
     Request to view a secific pilots flight schedule, requires the pilotId

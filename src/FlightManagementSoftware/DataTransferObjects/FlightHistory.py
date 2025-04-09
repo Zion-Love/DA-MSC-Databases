@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from DataTransferObjects.Mappable import Mappable
+from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 
 '''
     This module contains all of my Data Transfer objects (DTO) related to flight history views

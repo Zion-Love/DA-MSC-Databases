@@ -1,4 +1,4 @@
-from db.sqlite import dbConnectionInstance
+from FlightManagementSoftware.db.sqlite import dbConnectionInstance
 
 class QueryResult:
     def __init__(self, query : str, *parameters):

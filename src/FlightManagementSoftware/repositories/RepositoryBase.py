@@ -1,5 +1,5 @@
-from db.sqlite import dbConnectionInstance
-from Entities.QueryResult import QueryResult
+from FlightManagementSoftware.db.sqlite import dbConnectionInstance
+from FlightManagementSoftware.Entities.QueryResult import QueryResult
 
 '''
     This does fuck all right now TODO

@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from db.sqlite import dbConnectionInstance
-from DataTransferObjects.Mappable import Mappable
-from Entities.QueryResult import QueryResult
-from DataFrame import DataFrame
 from dataclasses import fields
+from FlightManagementSoftware.db.sqlite import dbConnectionInstance
+from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
+from FlightManagementSoftware.Entities.QueryResult import QueryResult
+from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
 
 dbColumnTypeMap = {
     int : 'INTEGER',

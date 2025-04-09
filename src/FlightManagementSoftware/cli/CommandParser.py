@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
-from cli.CommandHandler import CommandHandler
 from abc import ABC, abstractmethod
+from FlightManagementSoftware.cli.CommandHandler import CommandHandler
+
 
 '''
     This base class is used to template our cli -> command execution
@@ -18,14 +19,10 @@ class CommandParser(ABC):
     def __init__(self, handler : CommandHandler):
         if(not issubclass(handler,CommandHandler)):
             raise Exception(f"CommandParser requires a CommandHandler to initialize")
-        self.handler = handler
+        self.handler = type(handler)
         
     def run(self, **kwargs):
-        self.handler(**kwargs)
-        
-    @abstractmethod
-    def run(self, **kwargs):
-        raise NotImplementedError()
+        self.handler().FromKwargs(**kwargs)
 
     @abstractmethod
     def BuildCommandArgs(self, parser : ArgumentParser) -> ArgumentParser:

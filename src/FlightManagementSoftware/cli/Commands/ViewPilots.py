@@ -1,10 +1,10 @@
 
 from argparse import ArgumentParser
-from DataFrame import DataFrame
-from cli.CommandHandler import CommandHandler
 from dataclasses import dataclass
-from cli.CommandParser import CommandParser
-from repositories.PilotRepository import pilotRepository
+from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
+from FlightManagementSoftware.cli.CommandHandler import CommandHandler
+from FlightManagementSoftware.cli.CommandParser import CommandParser
+from FlightManagementSoftware.repositories.PilotRepository import pilotRepository
 
 '''
     This Command is used to fetch and view pilots

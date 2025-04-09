@@ -1,7 +1,7 @@
 from tabulate import tabulate
 from typing import Any
-from DataTransferObjects.Mappable import Mappable
 from dataclasses import fields
+from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 
 '''
     Defining a rudimentary DataFrame type similar to pandas 
@@ -14,10 +14,6 @@ from dataclasses import fields
     should I ever need to though I could write Pivot / ordering / aggregation function logic here to perform on in-memory data
 
     but for this project I doubt I would need to do that...
-
-
-    TODO : extend this class to have an index column, that way custom DTos can be mapped by specifying the index column
-        such that we have a resulting dictionary that we can provide expected values to search for records
 '''
 
 class DataFrame:
