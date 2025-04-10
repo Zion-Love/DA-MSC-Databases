@@ -28,21 +28,27 @@ class EntityBase(ABC):
         return DataFrame(cls.Map(QueryResult(qry)))
     
 
+    # not returning as dataframe since a single record is all thats needed
+    # this way we can check the fields directly
     @classmethod
     def QueryById(cls, Id : int):
         if(not issubclass(cls,Mappable)):
             raise Exception("Entity Base must inherit Mappable")
         qry = f'SELECT * FROM {cls.__name__} WHERE Id = ?'
 
-        return DataFrame(cls.Map(QueryResult(qry,Id)), cls)
+        return cls.Map(QueryResult(qry,Id))
     
 
     # Each of these operations accept a transaction variable , this means
     # we can bespoke handle dependant operations in the subclass implementation
     # of the corresponding abstract methods Create, Delete, Update ...
 
-
     # TODO : investigate creating a decorator function to add this instead of drilling transaction through like this...
+    # I should convert to using instance fields rather than looking for presence of Id column
+    # this is only relevant for PilotFlight that has no Id column
+    # Since it is the onl entity not using this I will just overwrite this behaviour inside its Delete implementation
+    # for a larger scale project with multiple many to many relationship tables I would change this to be more generic
+    # and not require the presence of an Id column
     
     # deleted database record that matches in memory record Id
     @classmethod
@@ -96,10 +102,10 @@ class EntityBase(ABC):
             UPDATE {cls.__name__} ({str.join(', ',columns)}) VALUES ({str.join(', ', ['?'] * len(columns))}) WHERE Id = ?
         '''
         if(transaction != None):
-            transaction.execute(qry, tuple([instance[column] for column in columns]))
+            transaction.execute(qry, tuple([instance.__dict__[column] for column in columns]))
         else :
             with(dbConnectionInstance.Get_Transaction() as transaction):
-                transaction.execute(qry, tuple([instance[column] for column in columns].append(instance.Id)))
+                transaction.execute(qry, tuple([instance.__dict__[column] for column in columns].append(instance.Id)))
 
 
     # these methods are required overrides for a subclass of EntityBase to be valid

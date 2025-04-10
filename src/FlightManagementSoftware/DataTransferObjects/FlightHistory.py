@@ -22,18 +22,6 @@ class FlightHistoryDto(Mappable):
     
 
 @dataclass
-class PilotFlightHistoryDto(Mappable):
-    PilotId : int
-    FlightId : int
-    DepartureDestination : str
-    DepartureDestinationCountry: str
-    ArrivalDestination : str
-    ArrivalDestinationCountry: str
-    DepartureTimeUTC : datetime
-    ArrivalTimeUTC : datetime
-
-
-@dataclass
 class PilotFlightHistorySummaryDto(Mappable):
     PilotId : int
     PilotName : str
@@ -52,3 +40,27 @@ class AirplaneFlightHistoryDto(Mappable):
     FlightsUndertaken : int
     FlightsCancelled : int
     TotalAirMilesTravelled : int
+
+
+@dataclass
+class PilotFlightScheduleDto(Mappable):
+    PilotId : int
+    PilotName : str
+    FromDestination : str
+    ToDestination : str
+    DepartureTime : datetime
+    ArrivalTime : datetime
+    DeletedDate : datetime
+
+
+# instead of showing the user the basic Flight entity records
+# this includes more verbose columns such as the destination names etc
+@dataclass
+class FlightScheduleDto(Mappable):
+    FlightId : int
+    DepartureDestination : str
+    ArrivalDestination : str
+    DepartureTimeUTC : datetime
+    ArrivalTimeUTC : datetime
+    AssignedPilots : str # an aggregated list of PilotName (Id:PilotId) , ...
+    FlightDeletionDate : datetime

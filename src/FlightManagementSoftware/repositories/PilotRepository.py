@@ -3,7 +3,7 @@ from FlightManagementSoftware.repositories.RepositoryBase import RepositoryBase
 from FlightManagementSoftware.Entities.QueryResult import QueryResult
 from FlightManagementSoftware.Entities.Pilot import Pilot
 from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
-from FlightManagementSoftware.DataTransferObjects.FlightHistory import PilotFlightHistoryDto
+from FlightManagementSoftware.DataTransferObjects.FlightHistory import PilotFlightScheduleDto
 
 '''
     Repositories for this project are a way of creating more complex queries requiring multiple tables,
@@ -36,7 +36,7 @@ class PilotRepository(RepositoryBase):
         elif(len(pilotId) > 1):
             query += ' WHERE p.Id IN ?'
             params = fr"({str.join(', ', pilotId)})"
-            return DataFrame(Pilot.Map(QueryResult(query, params), type(Pilot)))
+            return DataFrame(Pilot.Map(QueryResult(query, *params), type(Pilot)))
 
 
     def QueryByName(self, name : str) -> DataFrame:
@@ -68,9 +68,10 @@ class PilotRepository(RepositoryBase):
             includeDeletedFlights: bool = False,
             startDate : datetime = None, 
             endDate : datetime = None) -> DataFrame:
-        qry = '''
+        qry = r'''
             SELECT p.Id as PilotId, p.Name as PilotName, 
-            fromD.Name as FromDestination ,toD.Name as ToDestination, f.DepartureTimeUTC as DepartureTime, f.ArrivalTimeUTC as ArrivalTime
+                fromD.Name as FromDestination ,toD.Name as ToDestination, f.DepartureTimeUTC as DepartureTime, 
+                f.ArrivalTimeUTC as ArrivalTime, f.DeletedDate
             FROM Pilot p
 
             JOIN PilotFlight pf
@@ -88,22 +89,57 @@ class PilotRepository(RepositoryBase):
             JOIN Destination fromD
                 on fromD.Id = fp.FromDestinationId
 
-            WHERE p.Id = ?
+            {PilotIdFilter}
+            {CreatedDateFilter}
+            {IncludeDeletedFlightsFilter}
 
-            ORDER BY f.DepartureTimeUTC ASC
+            ORDER BY p.Name , f.DepartureTimeUTC ASC
         '''
-        params = [pilotId]
-        if startDate: 
-            qry += ' AND p.CreatedDate >= ?'
-            params.append(startDate)
-        if endDate: 
-            qry += ' AND p.CreatedDate <= ?'
-            params.append(endDate)
-        if not includeDeletedFlights:
-            qry += ' AND f.DeletedDate IS NULL'
-        
-        return DataFrame(PilotFlightHistoryDto.Map(QueryResult(qry, params), PilotFlightHistoryDto))
+        params = []
 
+        # Apply our pilotId filter(s) if one exitsts
+        if pilotId == None:
+            qry = qry.replace("{PilotIdFilter}", "")
+        else:
+            if isinstance(pilotId, int):
+                qry = qry.replace("{PilotIdFilter}", " WHERE p.Id = ?")
+                params.append(pilotId)
+            elif isinstance(pilotId, list) and len(pilotId) == 1:
+                qry = qry.replace("{PilotIdFilter}", " WHERE p.Id = ?")
+                params.append(pilotId[0])
+            elif isinstance(pilotId, list) and len(pilotId) > 1:
+                qry = qry.replace("{PilotIdFilter}", " WHERE p.Id in ?")
+                params.append(f"({','.join(pilotId)})")
+
+        # Apply our CreatedDate filter if one exsits
+        # using a prefix keyword if we have also got a pilot filter
+        createdDateFilterKeyword = " WHERE" if pilotId == None else " AND"
+        if startDate == None and endDate == None:
+            qry = qry.replace("{CreatedDateFilter}", "")
+        else:
+            if startDate != None:
+                if endDate != None:
+                    qry = qry.replace(r"{CreatedDateFilter}", f"{createdDateFilterKeyword} f.CreatedDate >= ? AND f.CreatedDate <= ?")
+                    params.append(startDate)
+                    params.append(endDate)
+                else:
+                    qry = qry.replace(r"{CreatedDateFilter}", f"{createdDateFilterKeyword} f.CreatedDate >= ?")
+                    params.append(startDate)
+            elif endDate != None and startDate == None:
+                qry = qry.replace(r"{CreatedDateFilter}", f"{createdDateFilterKeyword} f.CreatedDate <= ?")
+                params.append(endDate)
+
+        # Apply our deletion filter
+        if not includeDeletedFlights:
+            if pilotId != None or startDate != None or endDate != None:
+                qry = qry.replace(r"{IncludeDeletedFlightsFilter}" , " AND f.DeletedDate IS NULL")
+            else:
+                qry = qry.replace(r"{IncludeDeletedFlightsFilter}" , " WHERE f.DeletedDate IS NULL")
+        else:
+            qry = qry.replace(r"{IncludeDeletedFlightsFilter}", "")
+                
+        
+        return DataFrame(PilotFlightScheduleDto.Map(QueryResult(qry, *params)), PilotFlightScheduleDto)
 
 
 pilotRepository : PilotRepository = PilotRepository()

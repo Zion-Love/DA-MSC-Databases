@@ -27,7 +27,7 @@ class Mappable:
         setDifference = incomingColumnNames - expectedColumnNames
         if(len(setDifference) != 0):
            print(queryResult.query)
-           raise Exception(f"dataClassFields and QueryResult do not match : \n QUERY : {incomingColumnNames} \n MAPPING  : {expectedColumnNames}")
+           raise Exception(f"dataClassFields and QueryResult do not match : \n QUERY : {sorted(list(incomingColumnNames))} \n MAPPING  : {sorted(list(expectedColumnNames))}")
         
         # TODO : this could be made faster using a .map call rather than nested looping
         result = []

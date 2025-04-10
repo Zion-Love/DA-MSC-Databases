@@ -10,6 +10,7 @@ setup (
     package_dir={ "" : "src"},
     author='Zion Love',
     install_requires=[
+        "wheel",
         "tabulate",
         "typing_extensions"
     ],

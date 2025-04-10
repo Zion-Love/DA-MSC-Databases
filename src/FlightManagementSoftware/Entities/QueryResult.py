@@ -10,7 +10,7 @@ class QueryResult:
             if not parameters:
                 self.cursor = transaction.execute(query)
             else :
-                self.cursor = transaction.execute(query, tuple(parameters))
+                self.cursor = transaction.execute(query, self.parameters)
             self.result = self.cursor.fetchall()
 
 

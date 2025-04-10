@@ -5,16 +5,16 @@ from FlightManagementSoftware.Entities.EntityBase import EntityBase
 
 
 @dataclass
-class Flight(EntityBase, Mappable):
+class Airplane(EntityBase, Mappable):
     Id : int
-    FlightPathId : int
-    AirplaneId : int
-    DepartureTimeUTC : datetime
-    ArrivalTimeUTC : datetime
+    ModelNumeber : str
+    ManufacturedDate : datetime
+    LastServiceDate : datetime
+    PassengerCapacity : int
+    CurrentDestinationId : int
     CreatedDate : datetime
     DeletedDate : datetime
 
-    # flight dependant FK are handled through the db constraints so we dont need to validate that in creation...
     def Create(self):
         self._Create(self)
 

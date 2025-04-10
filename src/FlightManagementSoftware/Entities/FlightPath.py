@@ -5,12 +5,12 @@ from FlightManagementSoftware.Entities.EntityBase import EntityBase
 
 
 @dataclass
-class Flight(EntityBase, Mappable):
+class FlightPath(EntityBase, Mappable):
     Id : int
-    FlightPathId : int
-    AirplaneId : int
-    DepartureTimeUTC : datetime
-    ArrivalTimeUTC : datetime
+    FromDestinationId : int
+    ToDestinationId : int
+    DistanceKm : int
+    Active : bool
     CreatedDate : datetime
     DeletedDate : datetime
 

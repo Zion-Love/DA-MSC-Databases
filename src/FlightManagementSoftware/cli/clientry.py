@@ -4,24 +4,27 @@ from FlightManagementSoftware.cli.Commands.CreatePilot import CreatePilotCommand
 from FlightManagementSoftware.cli.Commands.RebuildDatabase import RebuildDatabaseCommandParser
 #from FlightManagementSoftware.cli.Commands.UpdateFlight import UpdateFlightCommandParser
 from FlightManagementSoftware.cli.Commands.ViewPilots import ViewPilotsCommandParser
-#from FlightManagementSoftware.cli.Commands.ViewPilotFlightSchedule import ViewPilotFlightScheduleCommandParser
-#from FlightManagementSoftware.cli.Commands.ViewActiveFlightPaths import ViewFlightPathsCommandParser
+from FlightManagementSoftware.cli.Commands.ViewPilotFlightSchedule import ViewPilotFlightScheduleCommandParser
+from FlightManagementSoftware.cli.Commands.ViewFlightSchedule import ViewFlightScheduleCommandParser
 
-# A map that builds our cli commands with key as the primary argument to  execute the command
+# A map that builds our cli commands with key as the primary argument to execute the command
 # each parser will build the commands specific arguments
 commandMap = {
     "AssignPilotFlight" : AssignPilotFlightCommandParser,
     "CreatePilot" : CreatePilotCommandParser,
     "RebuildDatabase" : RebuildDatabaseCommandParser,
     "ViewPilots" : ViewPilotsCommandParser,
-    #"ViewPilotFlightSchedule" : ViewPilotFlightScheduleCommandParser,
-    #"ViewFlightPaths" : ViewFlightPathsCommandParser,
+    "ViewPilotFlightSchedule" : ViewPilotFlightScheduleCommandParser,
+    "ViewFlightSchedule" : ViewFlightScheduleCommandParser,
 }
 
 
 def main():
     '''
         This will build all of our sub parsers for each command using the above map
+
+        this tells our python module what arguments it expects to parse from console input
+        meaning we can build a library of cli commands with allowed arguments to pass to our handlers
     '''
     programParser = argparse.ArgumentParser(prog="PROG")
     subparsers = programParser.add_subparsers(help='sub-command help')

@@ -19,10 +19,11 @@ def AssertStringIsOneOf(val: Any, validStrings: list[str]) -> str:
     return val
 
 
-# for the sake of this applications consistency I will be expecting all datetimes to be in the format dd-mm-yyyy HH:MM:SS 
+# for the sake of this applications consistency I will be expecting all datetimes to be in the same format
 def AssertDateTimeString(val: Any) -> datetime:
-    expectedFormat = 'dd-mm-yyyy HH:MM:SS'
-    dt = datetime.strptime(val, expectedFormat)
+    expectedDateTimeFormat = r'%Y-%m-%d %H:%M:%S'
+    expectedDateFormat = r'%y-%m-%d'
+    dt = datetime.strptime(val, expectedDateTimeFormat)
     return dt
 
 

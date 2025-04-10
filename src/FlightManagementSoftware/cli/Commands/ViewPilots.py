@@ -5,34 +5,38 @@ from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.repositories.PilotRepository import pilotRepository
+from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
 
 '''
     This Command is used to fetch and view pilots
 
     Can be filtered by:
-
+        - Search Name : fuzzymatches Pilot.Name to this
+        - IncludeDeleted
+        - PilotId
 '''
 
 @dataclass
 class ViewPilotsCommand(CommandHandler):
-    SearchName: str = None
-    IncludeDeleted: bool = True
-    PilotId : int | list[int] = None # TODO implement this filter
+    searchName: str = None
+    includeDeleted: bool = True
+    pilotId : int | list[int] = None
 
     def Validate(self):
-        if(self.PilotId):
-            assert(self.SearchName == None) , "Cannot provide a SearchName when searching by Id(s)"
+        if self.pilotId:
+            if self.searchName == None:
+                raise AbortCommandException("Cannot provide a SearchName when searching by Id(s)")
 
-        assert(isinstance(self.IncludeDeleted,bool))
-        assert(self.SearchName == None or isinstance(self.SearchName,str))
+        if not (self.searchName == None or isinstance(self.searchName,str)):
+            raise AbortCommandException(f"Invalid searchName provided : {self.searchName}")
     
 
     def Handle(self):
         pilots : DataFrame
-        if self.PilotId:
-            pilots = pilotRepository.QueryById(self.PilotId)
+        if self.pilotId:
+            pilots = pilotRepository.QueryById(self.pilotId)
 
-        pilots = pilotRepository.QueryPilots(self.IncludeDeleted, self.SearchName)    
+        pilots = pilotRepository.QueryPilots(self.includeDeleted, self.searchName)    
         print(pilots)
         
 
@@ -42,7 +46,7 @@ class ViewPilotsCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser : ArgumentParser) -> ArgumentParser:
-        parser.add_argument('--IncludeDeleted', nargs='?',type=bool, help='Toggles weather to show deleted pilots or not', dest='IncludeDeleted')
-        parser.add_argument('--SearchName', nargs='?',type=str, help='Filters results fuzzy matching on name', dest='SearchName')
-        parser.add_argument('--PilotId', nargs='*', type=int, help="Pilot Id's to search for")
+        parser.add_argument('-includeDeleted', nargs='?',type=bool, help='Toggles weather to show deleted pilots or not', dest='IncludeDeleted')
+        parser.add_argument('--searchName', nargs='?',type=str, help='Filters results fuzzy matching on name', dest='SearchName')
+        parser.add_argument('--pilotId', nargs='*', type=int, help="Pilot Id's to search for")
         parser.set_defaults(command=self.run)

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
+from FlightManagementSoftware.Entities.Destination import Destination
 
 '''
     This Command Views all the Destinations
@@ -10,8 +11,14 @@ from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 
 '''
 
+# TODO :
+
 @dataclass
 class ViewDestinationsCommand(CommandHandler):
+    desintationId : list[int] | int = None
+    countryCodeFilters : list[str] | str = None
+    includeDeleted : bool = False
+
 
     def Validate(self):
         pass

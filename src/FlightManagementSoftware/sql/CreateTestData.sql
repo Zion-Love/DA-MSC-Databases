@@ -57,8 +57,6 @@ INSERT INTO Destination (Id, CountryId, "Name", AirportCode, Active, CreatedDate
 INSERT INTO Destination (Id, CountryId, "Name", AirportCode, Active, CreatedDate, DeletedDate) VALUES (2, 1, 'London Heathrow', 'LHR', 1, DATETIME('1944-03-25'), NULL);
 INSERT INTO Destination (Id, CountryId, "Name", AirportCode, Active, CreatedDate, DeletedDate) VALUES (3, 1, 'London Terminal Aerodrome', 'LCI', 0, DATETIME('1920-03-09'), DATETIME('1959-09-30'));
 
-
-
 -- SPA Destinations
 INSERT INTO Destination (Id, CountryId, "Name", AirportCode, Active, CreatedDate, DeletedDate) VALUES (4, 6, 'San Sebastian Flight School', NULL, 1, DATETIME('1987-01-09'), NULL);
 INSERT INTO Destination (Id, CountryId, "Name", AirportCode, Active, CreatedDate, DeletedDate) VALUES (5, 6, 'Adolfo Suárez Madrid–Barajas Airport', 'MAD', 1, DATETIME('1987-01-09'), NULL);
@@ -68,7 +66,7 @@ INSERT INTO Destination (Id, CountryId, "Name", AirportCode, Active, CreatedDate
 
 
 
--- This table defines the Airports valid flight paths, when flights are to be created
+-- This table defines the Destinations valid flight paths, when flights are to be created
 -- it must first check that it is a valid active flight path.
 -- We could have certain flight paths blocked for various reasons 
 -- such as airspace being shut down en route, or a specific airport
@@ -112,22 +110,22 @@ CREATE Table Airplane (
     ManufacturedDate DATETIME2 NOT NULL, 
     LastServiceDate DATETIME2 NOT NULL, -- For newly added planes this will match CreatedDate
     PassengerCapacity INTEGER NOT NULL,
-    CurrentAirportId INTEGER,
+    CurrentDestinationId INTEGER,
     CreatedDate DATETIME2 NOT NULL,
     DeletedDate DATETIME2,
 
-    FOREIGN KEY (CurrentAirportId) REFERENCES Airport
+    FOREIGN KEY (CurrentDestinationId) REFERENCES Destination
 );
 
-INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentDestinationId, CreatedDate, DeletedDate) 
     VALUES (1, '1to87987ijh982', DATETIME('2001-01-01'), date('now'), 160, null, date('now'), null);
-INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentDestinationId, CreatedDate, DeletedDate) 
     VALUES (2, 'aksnf92930g31', DATETIME('1987-01-01'), date('now'), 180, null, date('now'), null);
-INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentDestinationId, CreatedDate, DeletedDate) 
     VALUES (3, 'klsmv92g02b009', DATETIME('1999-12-25'), date('now'), 200, null, date('now'), null);
-INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentDestinationId, CreatedDate, DeletedDate) 
     VALUES (4, 'qgm29mg0393', DATETIME('2020-08-30'), date('now'), 80, null, date('now'), null);
-INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentAirportId, CreatedDate, DeletedDate) 
+INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentDestinationId, CreatedDate, DeletedDate) 
     VALUES (5, '08meb08nb404', DATETIME('2010-07-02'), date('now'), 4, 5, date('now'), null);
 
 
@@ -153,7 +151,7 @@ INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (5, '
 CREATE TABLE Flight (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     FlightPathId INTEGER NOT NULL,
-    AirPlaneId INTEGER NOT NULL,
+    AirplaneId INTEGER NOT NULL,
     DepartureTimeUTC DATETIME2,
     ArrivalTimeUTC DATETIME2,
     CreatedDate DATETIME2 NOT NULL,

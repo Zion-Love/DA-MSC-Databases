@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
 
 '''
     Abstract base class for our cli command objects , this will allow me to have command specific argument validation
@@ -8,10 +9,15 @@ from dataclasses import dataclass
 @dataclass
 class CommandHandler(ABC):
     # Post init class to run on handlers such that we can just do result = Handler(options)
-    # a lot of commands will not return a specific result and instead just print information to the screen.
+    # Commands have no real need to return data since I am not integrating this into any other application
+    # an api layer would be responsible for determining any data returned in a Command
     def __post_init__(self):
-        self.Validate()
-        self.Handle()
+        try:
+            self.Validate()
+            self.Handle()
+        except AbortCommandException as e:
+            print(f"Command Aborted : {e}")
+
 
     @abstractmethod
     def Validate(self):

@@ -67,7 +67,6 @@ class SqliteDbConnection:
         # using relative path to keep database contained in same directory as project
         db_file = self.relative_path + '/database.sqlite3'
         print("Initisalising db")
-        print(db_file)
         if(not os.path.isfile(db_file)):
             print("Could not find existing database file , creating new one...")
             refresh = True
@@ -77,10 +76,10 @@ class SqliteDbConnection:
         # Honestly I would never do this with raw sql , even using a db first setup I would want to run a test reflecting the db 
         # to ensure our code tables etc match that of our db
         if(refresh == False): 
-            print("refresh not chosen db initialized")
+            print("db initialized")
             return
         
-        print("tearing down db...")
+        print("Rebuilding : tearing down db...")
 
         # Query to see if database contains any data currently
         query : str = "SELECT COUNT(*) from sqlite_master WHERE type='table';"
@@ -119,6 +118,7 @@ class SqliteDbConnection:
                     transaction.executescript(test_data_sql)
                 except Exception as e:
                     raise Exception(f"Unexpected Exception executing db command : \n {e}")
+        print("db initialized")
 
 
 dbConnectionInstance = SqliteDbConnection()
