@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.Entities.PilotFlight import PilotFlight
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
-from FlightManagementSoftware.repositories.PilotRepository import pilotRepository
 from FlightManagementSoftware.Entities.Pilot import Pilot
 from FlightManagementSoftware.Entities.Flight import Flight
 from FlightManagementSoftware.cli.UserInputHelpers import ContinueYN
@@ -82,8 +81,7 @@ class AssignPilotFlightCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument('--pilotId', type=int, help="The pilotId to assign")
-        parser.add_argument('--flightId', type=int, help="the flightId to assign to")
-        # provide as optional flag , if present sets remove=True else defaults to false
-        parser.add_argument('-remove', action='store_true', help="Specifies to remove the pilot assignment")
+        parser.add_argument('-p','--pilotId', type=int, help="The pilotId to assign")
+        parser.add_argument('-f','--flightId', type=int, help="the flightId to assign to")
+        parser.add_argument('-r','--remove', action='store_true', help="Specifies to remove the pilot assignment")
         parser.set_defaults(command=self.run)

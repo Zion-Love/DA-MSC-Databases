@@ -19,11 +19,14 @@ def AssertStringIsOneOf(val: Any, validStrings: list[str]) -> str:
     return val
 
 
-# for the sake of this applications consistency I will be expecting all datetimes to be in the same format
+# for the sake of this applications consistency I will be expecting all datetimes to be in one of two formats
 def AssertDateTimeString(val: Any) -> datetime:
     expectedDateTimeFormat = r'%Y-%m-%d %H:%M:%S'
-    expectedDateFormat = r'%y-%m-%d'
-    dt = datetime.strptime(val, expectedDateTimeFormat)
+    alternativeDateTimeFormat = r'%Y-%m-%d'
+    try:
+        dt = datetime.strptime(val, expectedDateTimeFormat)
+    except Exception as e:
+        dt = datetime.strptime(val, alternativeDateTimeFormat)
     return dt
 
 
@@ -43,3 +46,7 @@ def AssertStringNotEmpty(val : Any) -> str:
     # using regex to strip all whitespace...
     assert len(re.sub('^(\s+)', '', val)) > 0
     return val
+
+
+def AssertDateAIsBeforeDateB(dateA : datetime, dateB :datetime):
+    assert dateA < dateB

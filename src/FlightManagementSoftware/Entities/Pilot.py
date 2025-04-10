@@ -17,7 +17,8 @@ class Pilot(EntityBase, Mappable):
 
 
     def Update(self):
-        self._Update(self)
+        Pilot._Update(self)
+
 
     # for Pilot if we are softdeleting we still need to clean up
     # PilotFlight to unassign this pilot from all their current flights
@@ -34,4 +35,4 @@ class Pilot(EntityBase, Mappable):
                 );
             '''
             transaction.execute(deleteAssignedUncompleteFlightsQuery, (pilotId if pilotId != None else self.Id,))
-            self._Delete(self, transaction)
+            Pilot._Delete(self, transaction)

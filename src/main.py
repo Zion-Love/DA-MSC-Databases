@@ -9,10 +9,13 @@ from FlightManagementSoftware.cli.Commands.UpdateFlight import UpdateFlightComma
 
 def __main__():
     RebuildDatabaseCommand()
+
+    # Assigning Pilots to flights
     #command = AssignPilotFlightCommand(pilotId=5, flightId=5)
     #command = AssignPilotFlightCommand(pilotId=5, flightId=5, remove=True)
 
-    #command = ViewPilotFlightScheduleCommand(pilotId=1, startDate='1000-01-01 00:00:00')
+    # Applying multiple filter criteria through a single command
+    command = ViewFlightScheduleCommand(flightId=[3,5], includeCompleted=True)
     # hold the console open
     input()
 

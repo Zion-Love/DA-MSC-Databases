@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
-from FlightManagementSoftware.cli.InputValidator import AssertIsPositiveInteger
+from FlightManagementSoftware.cli.InputValidator import (
+    AssertIsPositiveInteger,
+    AssertDateTimeString
+)
 from FlightManagementSoftware.repositories.FlightRepository import flightRepository
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.cli.CommandParser import CommandParser
@@ -11,9 +14,9 @@ from FlightManagementSoftware.cli.CommandParser import CommandParser
     can be filtered by:
         - pilotId : Either as a list or as a singular integer
         - flightId : Either as a list or as a singular integer
+        - destinationId : Either as a lsit or as a singular integer
         - includeCompleted
         - includeDeleted
-    
 '''
 
 @dataclass
@@ -21,8 +24,10 @@ class ViewFlightScheduleCommand(CommandHandler):
     pilotId : int | list[int] = None
     flightId : int | list[int] = None
     destinationId : int | list[int] = None
-    DepartureDateUTC : datetime = None
-    includeCompelted : bool = False # clasified as ArrivalTimeUTC is NULL
+    departureTimeUTC : datetime = None
+    startDate : datetime = None
+    endDate : datetime = None
+    includeCompleted : bool = False # clasified as ArrivalTimeUTC is NULL
     includeDeleted : bool = False
 
     def Validate(self):
@@ -38,12 +43,16 @@ class ViewFlightScheduleCommand(CommandHandler):
                 self.flightId = [AssertIsPositiveInteger(id) for id in self.flightId]
             else: self.flightId = AssertIsPositiveInteger(self.flightId)
 
-    
+
     def Handle(self):
-        flights = flightRepository.QueryByPilotFlight(
+        flights = flightRepository.QueryFlightSchedule(
             pilotId=self.pilotId, 
             flightId=self.flightId,
-            includeDeleted=self.includeDelete)
+            destinationId=self.destinationId,
+            startDate=self.startDate,
+            endDate=self.endDate,
+            includeCompleted=self.includeCompleted,
+            includeDeleted=self.includeDeleted)
         print(flights)
 
 
@@ -53,9 +62,14 @@ class ViewFlightScheduleCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument("--pilotId", nargs='*', type=int, help="PilotIds to filter for.")
-        parser.add_argument("--flightId", nargs='*', type=int, help="FlightIds to filter for.")
-        parser.add_argument("-includeDeleted", action='store_true', help="If set will also show deleted Flights")
-        parser.add_argument("-includeCompleted", action='store_true', help="If set will also show completed flights (flights with an ArrivalDateUTC)")
+        parser.add_argument('-p',"--pilotId", nargs='+', type=int, help="PilotIds to filter for.")
+        parser.add_argument('-f',"--flightId", nargs='+', type=int, help="FlightIds to filter for.")
+
+        parser.add_argument('-t',"--departureTimeUTC", nargs=1, 
+            type=lambda x: AssertDateTimeString(x), 
+            help="FlightIds to filter for.")
+       
+        parser.add_argument('-del',"--includeDeleted", action='store_true', help="If set will also show deleted Flights")
+        parser.add_argument('-com',"--includeCompleted", action='store_true', help="If set will also show completed flights (flights with an ArrivalDateUTC)")
         parser.set_defaults(command=self.run)
     

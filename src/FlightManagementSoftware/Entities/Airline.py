@@ -11,12 +11,13 @@ class Airline(EntityBase, Mappable):
     CreatedDate : datetime
     DeletedDate : datetime
 
-    # flight dependant FK are handled through the db constraints so we dont need to validate that in creation...
     def Create(self):
-        self._Create(self)
+        Airline._Create(self)
+
 
     def Update(self):
-        self._Update(self)
+        Airline._Update(self)
+
 
     def Delete(self):
-        self._Delete(self)
+        Airline._Delete(self)

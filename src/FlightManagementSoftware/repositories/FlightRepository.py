@@ -1,14 +1,14 @@
 from datetime import datetime
 from FlightManagementSoftware.repositories.RepositoryBase import RepositoryBase
 from FlightManagementSoftware.Entities.QueryResult import QueryResult
-from FlightManagementSoftware.Entities.PilotFlight import PilotFlight
 from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
 from FlightManagementSoftware.DataTransferObjects.FlightHistory import FlightScheduleDto
 
 flightScheduleBaseQuery = r'''
-    SELECT f.Id as FlightId,f.DepartureTimeUTC , f.ArrivalTimeUTC,
-        DepartureDestination.Name as DepartureDestination, ArrivalDestination.Name as ArrivalDestination,
-        AssignedPilots.AssignedPilots, f.DeletedDate FlightDeletionDate
+    SELECT f.Id AS FlightId,f.DepartureTimeUTC , f.ArrivalTimeUTC,
+        DepartureDestination.Name AS DepartureDestination, ArrivalDestination.Name AS ArrivalDestination,
+        f.DeletedDate AS FlightDeletionDate,
+        GROUP_CONCAT(p.Id, ', ') AS Pilots
     FROM Flight f
 
     JOIN FlightPath fp 
@@ -20,75 +20,119 @@ flightScheduleBaseQuery = r'''
     JOIN Destination ArrivalDestination 
         ON fp.ToDestinationId = ArrivalDestination.Id 
 
-    LEFT JOIN (
-        SELECT pf.FlightId, GROUP_CONCAT(format('%s (Id : %s)' , p.Name, p.Id), ', ') AS AssignedPilots 
-        FROM PilotFlight pf
-            JOIN Pilot p
-                ON p.Id = pf.PilotId
-            {PilotIdFilter}    
-            GROUP BY pf.FlightId
-    ) AssignedPilots
-    ON AssignedPilots.FlightId = f.Id
+    LEFT JOIN PilotFlight pf
+        on pf.FlightId = f.Id
+    LEFT JOIN Pilot p
+        on p.Id = pf.PilotId
 
-    {FlightIdFilter}
-    {IncludeDeletedFilter}
+    {MainQueryFilter}
 
-    ORDER BY f.DepartureDateUTC ASC
+    GROUP BY f.Id, f.DepartureTimeUTC, f.ArrivalTimeUTC,
+        DepartureDestination.Name, ArrivalDestination.Name, f.DeletedDate
+
+    ORDER BY f.DepartureTimeUTC ASC
 '''
 
 class FlightRepository(RepositoryBase):
 
-    def QueryByPilotFlight(
+    def QueryFlightSchedule(
             self, 
             pilotId : list[int] | int = None, 
             flightId : list[int] | int = None,
-            includeDeleted : bool = True):
+            destinationId : list[int] | int = None,
+            startDate : datetime = None,
+            endDate : datetime = None,
+            includeCompleted : bool = True,
+            includeDeleted : bool = False):
         parameters = []
         qry = flightScheduleBaseQuery
 
-        # Append our pilot id filter if it is present
-        if pilotId == None:
-            qry = qry.replace("{PilotIdFilter}" , "")
-        else:
+        # build our filters
+        mainQueryFilter = ""
+        if pilotId != None:
             if isinstance(pilotId, list) and len(pilotId) > 1:
-                qry = qry.replace("{PilotIdFilter}", "WHERE p.Id in ?")
-                parameters.append(f"({','.join(pilotId)})")
+                mainQueryFilter += f" WHERE p.Id in ({','.join(['?'] * len(pilotId))})"
+                parameters.extend(pilotId)
             elif (isinstance(pilotId, list) and len(pilotId) == 1):
-                qry = qry.replace("{PiilotIdFilter}", "WHERE p.Id = ?")
+                mainQueryFilter += " WHERE p.Id = ?"
                 parameters.append(pilotId[0])
             elif isinstance(pilotId, int):
-                qry = qry.replace("{PiilotIdFilter}", "WHERE p.Id = ?")
+                mainQueryFilter += " WHERE p.Id = ?"
                 parameters.append(pilotId)
 
         # Append our flight id filter if it is present
-        if flightId == None:
-            qry = qry.replace("{FlightIdFilter}" , "")
-        else:
-            if isinstance(flightId, list) and len(flightId) > 1:
-                qry = qry.replace("{FlightIdFilter}", "WHERE f.Id in ?")
-                parameters.append(f"({','.join(flightId)})")
-            elif (isinstance(flightId, list) and len(flightId) == 1):
-                qry = qry.replace("{FlightIdFilter}", "WHERE f.Id = ?")
-                parameters.append(flightId[0])
-            elif isinstance(flightId, int):
-                qry = qry.replace("{FlightIdFilter}", "WHERE f.Id = ?")
-                parameters.append(flightId)
-
-        if includeDeleted == True:
-            qry = qry.replace("{IncludeDeletedFilter}", "")
-        else:
-            if flightId != None:
-                qry = qry.replace("{IncludeDeletedFilter}", " AND f.DeletedDate IS NULL")
+        if flightId != None:
+            if mainQueryFilter == "":
+                mainQueryFilter += "WHERE "
             else:
-                qry = qry.replace("{IncludeDeletedFilter}", " WHERE f.DeletedDate IS NULL")
+                mainQueryFilter += " AND "
+            if isinstance(flightId, int) or isinstance(flightId, list) and len(flightId) == 1:
+                mainQueryFilter += "f.Id = ?"
+                parameters.append(flightId) if isinstance(flightId, int) else parameters.append(flightId[0])
+            elif (isinstance(flightId, list) and len(flightId) >= 1):
+                mainQueryFilter += f"f.Id in ({','.join(['?'] * len(flightId))})"
+                parameters.extend(flightId)
 
-        return DataFrame(PilotFlight.Map(QueryResult(qry, tuple(parameters))), PilotFlight)
+        # Apply our destination Id filter to both departure and arrival destinations
+        if destinationId != None:
+            if mainQueryFilter == "":
+                mainQueryFilter += "WHERE "
+            else:
+                mainQueryFilter += " AND "
+            if isinstance(destinationId, int) or (isinstance(destinationId, list) and len(destinationId) == 1):
+                mainQueryFilter += "(DepartureDestination.Id = ? OR ArrivalDestination.Id = ?)"
+                # adding this value once for each destination
+                if isinstance(destinationId, list):
+                    parameters.append(destinationId[0])
+                    parameters.append(destinationId[0])
+                else:
+                    parameters.append(destinationId)
+                    parameters.append(destinationId)
+            elif isinstance(destinationId, list) and len(destinationId) > 1:
+                mainQueryFilter += f"""
+                  ( DepartureDestination.Id in ({','.join(['?'] * len(destinationId))})
+                    OR ArrivalDestination.Id in ({','.join(['?'] * len(destinationId))}) )"""
+                parameters.extend(destinationId)
+                parameters.extend(destinationId)
+
+
+        if startDate != None:
+            if mainQueryFilter == "":
+                mainQueryFilter += "WHERE "
+            else:
+                mainQueryFilter += " AND "
+            mainQueryFilter += "f.DepartureTimeUTC >= ?"
+            parameters.append(startDate)
+
+        if endDate != None:
+            if mainQueryFilter == "":
+                mainQueryFilter += "WHERE "
+            else:
+                mainQueryFilter += " AND "
+            mainQueryFilter += "f.DepartureTimeUTC <= ?"
+            parameters.append(startDate)
+
+        if includeDeleted != True:
+            if mainQueryFilter != "":
+                mainQueryFilter += " AND f.DeletedDate IS NULL"
+            else:
+                mainQueryFilter += " WHERE f.DeletedDate IS NULL"
+
+        if includeCompleted != True:
+            if mainQueryFilter != "":
+                mainQueryFilter += " AND f.ArrivalTimeUTC IS NULL"
+            else:
+                mainQueryFilter += " WHERE f.ArrivalTimeUTC IS NULL"
+
+        qry = qry.replace("{MainQueryFilter}", mainQueryFilter)
+
+        return DataFrame(FlightScheduleDto.Map(QueryResult(qry, *parameters)), FlightScheduleDto)
     
 
-    def QueryAll(self, includeDeleted : bool = False):
+    def QueryAll(self):
         qry = flightScheduleBaseQuery
-        qry = qry.replace("{PilotIdFilter}" , "")
-        qry = qry.replace("{FlightIdFilter}" , "")
+        qry = qry.replace("{PilotFilter}" , "")
+        qry = qry.replace("{MainQueryFilter}" , "")
         return DataFrame(FlightScheduleDto.Map(QueryResult(qry)), FlightScheduleDto)
     
 

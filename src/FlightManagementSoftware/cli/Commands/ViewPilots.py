@@ -11,9 +11,9 @@ from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
     This Command is used to fetch and view pilots
 
     Can be filtered by:
-        - Search Name : fuzzymatches Pilot.Name to this
+        - Search Name : fuzzymatches Pilot.Name to this, only accepts single value
         - IncludeDeleted
-        - PilotId
+        - PilotId : either as a single input or list
 '''
 
 @dataclass
@@ -46,7 +46,7 @@ class ViewPilotsCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser : ArgumentParser) -> ArgumentParser:
-        parser.add_argument('-includeDeleted', nargs='?',type=bool, help='Toggles weather to show deleted pilots or not', dest='IncludeDeleted')
-        parser.add_argument('--searchName', nargs='?',type=str, help='Filters results fuzzy matching on name', dest='SearchName')
-        parser.add_argument('--pilotId', nargs='*', type=int, help="Pilot Id's to search for")
+        parser.add_argument('-del','--includeDeleted', action='store_true', help='Toggles weather to show deleted pilots or not', dest='IncludeDeleted')
+        parser.add_argument('-n','--name','--searchName', nargs=1,type=str, help='Filters results fuzzy matching on name', dest='SearchName')
+        parser.add_argument('-p','--pilotId', nargs='+', type=int, help="Pilot Id's to search for")
         parser.set_defaults(command=self.run)

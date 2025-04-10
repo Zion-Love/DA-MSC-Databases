@@ -26,6 +26,7 @@ class ViewPilotFlightScheduleCommand(CommandHandler):
 
     def Validate(self):
         if self.endDate != None: assert(self.startDate < self.endDate)
+
         if self.pilotId != None: 
             self.pilotId = AssertIsPositiveInteger(self.pilotId)
         self.startDate = AssertDateTimeString(self.startDate)
@@ -56,10 +57,15 @@ class ViewPilotFlightScheduleCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument('--pilotId', nargs='?', type=int, help="The pilotId whose schedule to view")
-        parser.add_argument('--startDate', nargs='?', 
+        parser.add_argument('-p','--pilotId', nargs=1, type=int, help="The pilotId whose schedule to view")
+
+        parser.add_argument('-s','-from','-begin','-start','--startDate', nargs='?', 
             type=lambda x: AssertDateTimeString(x),
             help="The start date to view the schedule from")
-        parser.add_argument('--endDate', nargs='?', type=datetime, help="The end date to view the schedule to")
-        parser.add_argument('-includeDeleted', action='store_true',help="Toggle to include deleted flights")
+        
+        parser.add_argument('-e','-to','-finish','-end','--endDate', nargs='?', 
+            type=lambda x: AssertDateTimeString(x), 
+            help="The end date to view the schedule to")
+        
+        parser.add_argument('-del','-includeDeleted', action='store_true',help="Toggle to include deleted flights")
         parser.set_defaults(command=self.run)

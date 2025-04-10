@@ -4,7 +4,7 @@ from FlightManagementSoftware.Entities.QueryResult import QueryResult
 from FlightManagementSoftware.Entities.PilotFlight import PilotFlight
 from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
 
-pilotFlightsBaseQuery : str = '''
+pilotFlightsBaseQuery : str = r'''
     SELECT f.Id as FlightId, AsignedPilots.AssignedPilots,
         f.DepartureTimeUTC, f.ArrivalTimeUTC, f.DeletedDate
     FROM Flight f
@@ -16,21 +16,24 @@ pilotFlightsBaseQuery : str = '''
         GROUP BY pf.FlightId
     ) AssignedPilots
     ON AssignedPilots.FlightId = f.Id
+
+    {MainQueryFilter}
+
+    ORDER BY f.DepartureTimeUTC ASC
 '''
 
 # not using Entity base for mapping here since PilotFlight is just a join table
 # between Flight and Pilot
 class PilotFlightRepository(RepositoryBase):
 
-
     def QueryByPilotFlight(self, pilotId : list[int] | int = None, flightId : list[int] | int = None) -> DataFrame:
         
         if(pilotId == None and flightId == None):
-            raise Exception("No filteres supplied to QueryByPilotFlight")
+            raise Exception("No filters supplied to QueryByPilotFlight")
         
         
         qry = pilotFlightsBaseQuery
-
+        qry = qry.replace("{MainQueryFilter}", "")
 
         return DataFrame(PilotFlight.Map(QueryResult(qry)), PilotFlight)
     

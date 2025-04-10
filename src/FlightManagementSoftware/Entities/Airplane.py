@@ -18,8 +18,10 @@ class Airplane(EntityBase, Mappable):
     def Create(self):
         self._Create(self)
 
+
     def Update(self):
         self._Update(self)
+
 
     def Delete(self):
         self._Delete(self)

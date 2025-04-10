@@ -30,6 +30,9 @@ class CommandParser(ABC):
         self.handler(**filteredKwargs)
 
 
+    # Abstract method that provides a way for each command parser to build the arguments for its handler
+    # this is adopting a vertical slice like strategy where the modules under Commands can be seen to encapsulate
+    # all the logic for performing that specific command, obviously using abstracted calls to the query layer to retrive data
     @abstractmethod
     def BuildCommandArgs(self, parser : ArgumentParser) -> ArgumentParser:
         raise NotImplementedError()

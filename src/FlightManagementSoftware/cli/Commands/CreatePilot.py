@@ -8,7 +8,6 @@ from FlightManagementSoftware.cli.InputValidator import (
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.Entities.Pilot import Pilot
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
-from FlightManagementSoftware.DataTransferObjects import DataFrame
 
 '''
     This Command will Add a new Pilot to our system

@@ -19,7 +19,7 @@ class FlightHistoryDto(Mappable):
     CreatedDate : datetime
     DeletedDate : datetime
     Pilots : str
-    
+
 
 @dataclass
 class PilotFlightHistorySummaryDto(Mappable):
@@ -62,5 +62,5 @@ class FlightScheduleDto(Mappable):
     ArrivalDestination : str
     DepartureTimeUTC : datetime
     ArrivalTimeUTC : datetime
-    AssignedPilots : str # an aggregated list of PilotName (Id:PilotId) , ...
+    Pilots : str # an aggregated list of pilotIds
     FlightDeletionDate : datetime

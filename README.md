@@ -9,6 +9,13 @@ Installation steps:
 5. run pip install .
 
 
-To use the CLI type FlightManagementSoftware \[COMMAND\] into the terminal , using the -h flag to print the help page.
+To use the CLI type FlightManagementSoftware  using the -h flag to print the help page.
 
-E.g FlightManagementSoftware ViewPilots
+E.g FlightManagementSoftware -h 
+
+will show all commands help screen
+
+
+or 
+
+FlightManagement

@@ -16,4 +16,4 @@ def ContinueYN(warningMessage : str = "WARNING: Execution paused Continue ? (y/n
     elif userInput.lower() in ['n', 'no']:
         raise AbortCommandException("Operation aborted by user input")
     else:
-        raise Exception(f"Un-recognized input expected 'y' or 'n' instead got '{userInput}', Operation cancelled.")
+        raise AbortCommandException(f"Un-recognized input expected 'y' or 'n' instead got '{userInput}', Operation cancelled.")

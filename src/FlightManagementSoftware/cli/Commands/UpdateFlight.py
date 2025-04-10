@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime
+from FlightManagementSoftware.cli.InputValidator import (
+    AssertDateTimeString,
+    AssertDateAIsBeforeDateB
+)
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.Entities.Flight import Flight
@@ -16,7 +20,7 @@ from FlightManagementSoftware.cli.UserInputHelpers import ContinueYN
 @dataclass
 class UpdateFlightCommand(CommandHandler):
     flightId : int
-    flightPathId : int = None
+    flightPathId : int = None # requiring using a specific flight path Id
     airplaneId : int = None
     departureTimeUTC : datetime = None
     arrivalTimeUTC : datetime = None
@@ -24,12 +28,15 @@ class UpdateFlightCommand(CommandHandler):
 
     def Validate(self):
         self.existingFlightRecord : Flight = Flight.QueryById(self.flightId)
-        self.existingFlightPathRecord = None
-        if self.FlightPathId != None: 
+        self.existingFlightPathRecord : FlightPath = None
+        if self.flightPathId != None: 
             self.existingFlightPathRecord = FlightPath.QueryById(self.flightPathId)
 
             if self.existingFlightPathRecord == None:
                 raise AbortCommandException(f"Unrecognized flightPathId : {self.flightPathId}")
+            
+            if self.existingFlightPathRecord.Active == False:
+                raise AbortCommandException(f"Flight path with Id : {self.flightPathId} is currenlty inactive")
 
         if(self.existingFlightRecord == None):
             raise AbortCommandException(f"Could not find flight with Id : {self.flightId}")
@@ -37,7 +44,7 @@ class UpdateFlightCommand(CommandHandler):
         # Validate our flight times make sense
         endArrivalTime = self.existingFlightRecord.ArrivalTimeUTC if self.arrivalTimeUTC == None else self.arrivalTimeUTC
         endDepartureTime = self.existingFlightRecord.DepartureTimeUTC if self.departureTimeUTC == None else self.departureTimeUTC
-        if(endDepartureTime < endArrivalTime):
+        if endArrivalTime != None and (endDepartureTime < endArrivalTime):
             raise AbortCommandException(f"Cannot have a Departure : {endDepartureTime} time that is before an ArrivalTime : {endArrivalTime}")
         
         if self.existingFlightRecord.ArrivalTimeUTC != None:
@@ -46,7 +53,7 @@ class UpdateFlightCommand(CommandHandler):
         if self.existingFlightRecord.DeletedDate != None and not self.undoDeletion: 
             ContinueYN(f"WARNING: Attempting to update information for a deleted Flight, Continue? (y/n)")
 
-        
+
     def Handle(self):
         if self.airplaneId != None:
             self.existingFlightRecord.AirplaneId = self.airplaneId
@@ -56,6 +63,8 @@ class UpdateFlightCommand(CommandHandler):
             self.existingFlightRecord.ArrivalTimeUTC = self.arrivalTimeUTC
         if self.undoDeletion == True:
             self.existingFlightRecord.DeletedDate = None
+        if self.flightPathId != None:
+            self.existingFlightRecord.FlightPathId = self.flightPathId
 
         self.existingFlightRecord.Update()
         print(f"Successfully Update Flight : {self.existingFlightRecord}")
@@ -67,7 +76,17 @@ class UpdateFlightCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument('--flightId', type=int, nargs=1, help="The flightId to update information for")
-        parser.add_argument('--flightPathId', type=int, nargs=1, help="The flightPathId to set the flight for")
-        parser.add_argument('--airplaneId', type=int, nargs=1, help="The flightId to update information for")
+        parser.add_argument('-f','--flightId', type=int, nargs=None, help="The flightId to update information for")
+        parser.add_argument('-fp','--flightPathId', type=int, nargs=None, help="The flightPathId to set the flight for")
+        parser.add_argument('-a','--airplaneId', type=int, nargs=None, help="The flightId to update information for")
+        parser.add_argument('-ud', '--undoDeletion', action='store_true', help="Will reverse the deletion of a flight")
+        
+        parser.add_argument('-d','-dep','-departure','-departureTime','-from','--departureTimeUTC', nargs=None,
+            type=lambda x: AssertDateTimeString(x),
+            help="The departure time of the flight")
+        
+        parser.add_argument('-ar','-arrival','-arrivalTime','-to','--arrivalTimeUTC', nargs=None, 
+            type=lambda x: AssertDateTimeString(x),
+            help="The ArrivalTimeUTC of the flight")
+        
         parser.set_defaults(command=self.run)

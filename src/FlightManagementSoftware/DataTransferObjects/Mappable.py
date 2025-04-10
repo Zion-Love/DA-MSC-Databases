@@ -29,8 +29,10 @@ class Mappable:
            print(queryResult.query)
            raise Exception(f"dataClassFields and QueryResult do not match : \n QUERY : {sorted(list(incomingColumnNames))} \n MAPPING  : {sorted(list(expectedColumnNames))}")
         
-        # TODO : this could be made faster using a .map call rather than nested looping
         result = []
+        if len(queryResult.result) == 0 or queryResult.result == None:
+            return None
+
         for i in range(0,len(queryResult.result)):
             objectInstanceKwargs = dict()
             for dataField in dataClassFields:

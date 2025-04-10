@@ -36,7 +36,8 @@ class EntityBase(ABC):
             raise Exception("Entity Base must inherit Mappable")
         qry = f'SELECT * FROM {cls.__name__} WHERE Id = ?'
 
-        return cls.Map(QueryResult(qry,Id))
+        result = cls.Map(QueryResult(qry,Id).AssertSingle())
+        return None if result == None else result[0]
     
 
     # Each of these operations accept a transaction variable , this means
@@ -101,6 +102,7 @@ class EntityBase(ABC):
         qry = f'''
             UPDATE {cls.__name__} ({str.join(', ',columns)}) VALUES ({str.join(', ', ['?'] * len(columns))}) WHERE Id = ?
         '''
+        print(qry)
         if(transaction != None):
             transaction.execute(qry, tuple([instance.__dict__[column] for column in columns]))
         else :

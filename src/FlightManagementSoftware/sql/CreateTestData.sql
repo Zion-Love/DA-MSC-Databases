@@ -38,12 +38,11 @@ INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (5,"Flying Por
 
 
 
-
 CREATE TABLE Destination (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     CountryId INTEGER NOT NULL,
     "Name" NVARCHAR(100) NOT NULL,
-    AirportCode NVARCHAR(3), -- can be null for things like private airfields
+    AirportCode NVARCHAR(3) UNIQUE, -- unique ignores nulls, could be null for private airfield for example
     Active BIT NOT NULL,
     CreatedDate DATETIME2 NOT NULL,
     DeletedDate DATETIME2,
