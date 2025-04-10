@@ -6,8 +6,13 @@ from FlightManagementSoftware.cli.InputValidator import (
     AssertIsPositiveInteger
 )
 from FlightManagementSoftware.cli.CommandParser import CommandParser
+from FlightManagementSoftware.Entities.Airline import Airline
 from FlightManagementSoftware.Entities.Pilot import Pilot
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
+from FlightManagementSoftware.cli.UserInputHelpers import (
+    AbortCommandException,
+    ContinueYN
+)
 
 '''
     This Command will Add a new Pilot to our system
@@ -25,8 +30,15 @@ class CreatePilotCommand(CommandHandler):
 
     def Validate(self):
         self.name = AssertStringNotEmpty(self.name)
-        if(self.airlineId != None):
+        if self.airlineId != None:
             self.airlineId = AssertIsPositiveInteger(self.airlineId)
+
+            self.existingAirline : Airline = Airline.QueryById(self.airlineId)
+
+            if self.existingAirline == None:
+                raise AbortCommandException(f"Airline with Id {self.airlineId} could not be found")
+            if self.existingAirline.DeletedDate == None:
+                ContinueYN("WARNING: Creating a pilot for a deleted airline, Continue ? (y/n)")
 
 
     def Handle(self):
@@ -46,6 +58,6 @@ class CreatePilotCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser : ArgumentParser):
-        parser.add_argument('--name', type=str, help='New pilots name')
-        parser.add_argument('--airlineId', nargs='?', type=int, help='New pilots name')
+        parser.add_argument('--name', type=str, help='New pilots name', required=True)
+        parser.add_argument('--airlineId', nargs='?', type=int, help="The AirlineId that the pilot works for")
         parser.set_defaults(command=self.run)

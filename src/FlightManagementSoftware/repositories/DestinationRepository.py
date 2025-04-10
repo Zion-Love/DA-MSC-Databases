@@ -2,9 +2,10 @@ from datetime import datetime
 from FlightManagementSoftware.repositories.RepositoryBase import RepositoryBase
 from FlightManagementSoftware.Entities.QueryResult import QueryResult
 from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
+from FlightManagementSoftware.Entities.Destination import Destination
 
 destinationBaseQuery = r'''
-    SELECT * FROM Destination d
+    SELECT d.* FROM Destination d
 
     JOIN Country c
         ON c.Id = d.CountryId
@@ -14,19 +15,58 @@ destinationBaseQuery = r'''
     ORDER BY d.CreatedDate ASC
 '''
 
-
 class DestinationRepository(RepositoryBase):
 
     def QueryDestination(
             self,
             destinationId : int | list[int] = None,
             countryCode : str | list[str] = None,
+            includeInactive : bool = False,
+            includeDeleted : bool = False
             ) -> DataFrame:
         qry = destinationBaseQuery
 
+        parameters = []
+
         mainQueryFilter = ""
+
+        # Apply DestinationId filter
         if destinationId != None:
-            pass
+            mainQueryFilter += " WHERE "
+            if isinstance(destinationId, int) or (isinstance(destinationId, list) and len(destinationId == 1)):
+                mainQueryFilter += "d.Id = ?"
+                if isinstance(destinationId, int):
+                    parameters.append(destinationId)
+                else:
+                    parameters.append(destinationId[0])
+            else:
+                mainQueryFilter += f"d.Id in ({','.join([['?'] * len(destinationId)])})"
+                parameters.extend(destinationId)
+
+        # Apply CountryCode filter
+        if countryCode != None:
+            mainQueryFilter += " WHERE " if mainQueryFilter == "" else " AND "
+            if isinstance(countryCode, str) or (isinstance(countryCode, list) and len(countryCode == 1)):
+                mainQueryFilter += "c.IsoCode = ?"
+                if isinstance(countryCode, int):
+                    parameters.append(countryCode)
+                else:
+                    parameters.append(countryCode[0])
+            else:
+                mainQueryFilter += f"c.IsoCode in ({','.join([['?'] * len(countryCode)])})"
+                parameters.extend(countryCode)
+
+        if not includeDeleted:
+            mainQueryFilter += " WHERE " if mainQueryFilter == "" else " AND "
+            mainQueryFilter += " d.DeletedDate IS NULL " 
+
+        if not includeInactive:
+            mainQueryFilter += " WHERE " if mainQueryFilter == "" else " AND "
+            mainQueryFilter += " d.Active = 1 " 
+
+        qry = qry.replace("{MainQueryFilter}", mainQueryFilter)
+
+        return DataFrame(Destination.Map(QueryResult(qry, *parameters)), Destination)
 
 
 

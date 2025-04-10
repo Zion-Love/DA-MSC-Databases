@@ -41,5 +41,5 @@ class DeletePilotCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser : ArgumentParser):
-        parser.add_argument('-id','-p','--pilotId',nargs=None, type=int, help='Id of the pilot to delete')
+        parser.add_argument('-id','-p','--pilotId',nargs=None, type=int, help='Id of the pilot to delete', required=True)
         parser.set_defaults(command=self.run)

@@ -9,6 +9,9 @@ Installation steps:
 5. run pip install .
 
 
+NOTE: you can run this install outside of a virtual environment though it wil install into your global pyhton directory meaning the .sqllite3 and any other data files will also get copied to those relative directories
+
+
 To use the CLI type FlightManagementSoftware  using the -h flag to print the help page.
 
 E.g FlightManagementSoftware -h 

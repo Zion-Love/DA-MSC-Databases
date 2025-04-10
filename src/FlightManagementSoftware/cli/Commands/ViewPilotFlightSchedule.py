@@ -57,7 +57,7 @@ class ViewPilotFlightScheduleCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument('-p','--pilotId', nargs=1, type=int, help="The pilotId whose schedule to view")
+        parser.add_argument('-p','--pilotId', nargs=1, type=int, help="The pilotId whose schedule to view", required=True)
 
         parser.add_argument('-s','-from','-begin','-start','--startDate', nargs='?', 
             type=lambda x: AssertDateTimeString(x),

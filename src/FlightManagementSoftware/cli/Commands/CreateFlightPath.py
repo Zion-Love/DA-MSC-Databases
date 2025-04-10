@@ -20,6 +20,10 @@ class CreateFlightPathCommand(CommandHandler):
 
 
     def Validate(self):
+        if (not (self.fromDestinationId != None ^ self.fromDestinationAirportCode != None) or
+           not (self.toDestinationId != None ^ self.toDestinationAirportCode != None)):
+           raise AbortCommandException(f"You must supply both a from and to destination either as Ids or airportCodes") 
+
         self.fromDestination : Destination = (
             Destination.QueryById(self.fromDestinationId) if self.fromDestinationId != None 
             else Destination.QueryByAirportCode(self.fromDestinationAirportCode)
@@ -80,10 +84,11 @@ class CreateFlightPathCommandParser(CommandParser):
     def __init__(self):
         super().__init__(CreateFlightPathCommand)
 
+
     def BuildCommandArgs(self, parser):
-        parser.add_argument('-fId','-fromId',"--fromDestinationId", nargs=None, type=int, help="The Departure destination Id")
-        parser.add_argument('-tId','-toId',"--toDestinationId", nargs=None, type=int, help="The Arrival destination Id")
+        parser.add_argument('-fId','-fromId',"--fromDestinationId", nargs=None, type=int, help="The Departure destination Id", required=True)
+        parser.add_argument('-tId','-toId',"--toDestinationId", nargs=None, type=int, help="The Arrival destination Id", required=True)
         parser.add_argument('-d','-dist','-distance',"--disanceKm", nargs=None, type=int, help="The Distance in Km between thw two destinations")
         parser.add_argument('-ia','--active', default=True, action='store_false', help="If included will mark the flight path as inactive")
         parser.add_argument('-i','-inv','--alsoCreateInverse', action='store_true', help="If included will create both the desired flight path and its inverse direction")
-        parser.set_defaults(self.run)
+        parser.set_defaults(command=self.run)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
-from FlightManagementSoftware.Entities.Destination import Destination
+from FlightManagementSoftware.repositories.DestinationRepository import destinationRepository
 
 '''
     This Command Views all the Destinations
@@ -16,7 +16,7 @@ from FlightManagementSoftware.Entities.Destination import Destination
 
 @dataclass
 class ViewDestinationsCommand(CommandHandler):
-    desintationId : list[int] | int = None
+    destinationId : list[int] | int = None
     countryCode : list[str] | str = None
     includeInactive : bool = False
     includeDeleted : bool = False
@@ -26,12 +26,19 @@ class ViewDestinationsCommand(CommandHandler):
         pass
     
     def Handle(self):
-        raise NotImplementedError()
+        destinations = destinationRepository.QueryDestination(
+            destinationId=self.destinationId,
+            countryCode=self.countryCode,
+            includeDeleted=self.includeDeleted,
+            includeInactive=self.includeInactive
+        )
+        print(destinations)
     
 
 class ViewDestinationsCommandParser(CommandParser):
     def __init__(self):
         super().__init__(ViewDestinationsCommand)
+
 
     def BuildCommandArgs(self, parser):
         parser.add_argument('-d','-dest','--destinationId', nargs='+', type=int,help="The DestinationId(s) to view")

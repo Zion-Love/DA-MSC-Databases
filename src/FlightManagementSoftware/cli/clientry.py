@@ -8,6 +8,8 @@ from FlightManagementSoftware.cli.Commands.ViewPilotFlightSchedule import ViewPi
 from FlightManagementSoftware.cli.Commands.ViewFlightSchedule import ViewFlightScheduleCommandParser
 from FlightManagementSoftware.cli.Commands.DeletePilot import DeletePilotCommandParser
 from FlightManagementSoftware.cli.Commands.CreateFlightPath import CreateFlightPathCommandParser
+from FlightManagementSoftware.cli.Commands.CreateFlight import CreateFlightCommandParser
+from FlightManagementSoftware.cli.Commands.ViewDestinations import ViewDestinationsCommandParser
 
 # A map that builds our cli commands with key as the primary argument to execute the command
 # each parser will build the commands specific arguments
@@ -38,15 +40,23 @@ commandMap = {
     },
     "UpdateFlight" : {
         "parser" : UpdateFlightCommandParser,
-        "help": "Update information surrounding a specific flight"
+        "help": "Update information surrounding a specific Flight"
     },
-    "DeletePilot" : {
-        "parser" : DeletePilotCommandParser,
-        "help" : "Delete a pilot by their unique Id"
+    # "DeletePilot" : {
+    #     "parser" : DeletePilotCommandParser,
+    #     "help" : "Delete a Pilot by their unique Id"
+    # },
+    "CreateFlight" : {
+        "parser" : CreateFlightPathCommandParser,
+        "help" : "Create a Flight"
     },
     "CreateFlightPath": {
-        "parser" : CreateFlightPathCommandParser,
-        "help" : "Create a flight path"
+        "parser" : CreateFlightCommandParser,
+        "help" : "Create a FlightPath"
+    },
+    "ViewDestinations" : {
+        "parser" : ViewDestinationsCommandParser,
+        "help"  : "View Destinations matching criteria"
     }
 }
 

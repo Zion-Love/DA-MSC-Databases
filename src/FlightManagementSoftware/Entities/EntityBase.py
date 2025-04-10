@@ -31,13 +31,24 @@ class EntityBase(ABC):
     # not returning as dataframe since a single record is all thats needed
     # this way we can check the fields directly
     @classmethod
-    def QueryById(cls, Id : int):
+    def QueryById(cls, Id : list[int] | int):
+
         if(not issubclass(cls,Mappable)):
             raise Exception("Entity Base must inherit Mappable")
-        qry = f'SELECT * FROM {cls.__name__} WHERE Id = ?'
+        qry = f'SELECT * FROM {cls.__name__}'
 
-        result = cls.Map(QueryResult(qry,Id).AssertSingle())
-        return None if result == None else result[0]
+        if isinstance(Id, list) and all([isinstance(i,int) for i in Id]):
+            if len(Id) == 0:
+                raise Exception(f"Ids are empty when calling {cls.__name__}.QueryById")
+            qry += f" WHERE Id in ({','.join(['?'] * len(Id))})"
+            result = cls.Map(QueryResult(qry,Id))
+            return None if result == None else result
+        elif isinstance(Id, int):
+            qry += " WHERE Id = ?"
+            result = cls.Map(QueryResult(qry,Id).AssertSingle())
+            return None if result == None else result[0]
+        else:
+            raise Exception(f"Could not search for Ids {Id} in {cls.__name__}.QueryById")
     
 
     # Each of these operations accept a transaction variable , this means

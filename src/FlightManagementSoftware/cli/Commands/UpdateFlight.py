@@ -15,7 +15,7 @@ from FlightManagementSoftware.cli.UserInputHelpers import ContinueYN
     This command provides a way to update information about a specific flight
 
     Intentionally not allowing the editing of the CreatedDate column as this is representative
-    of the isnertion time of record
+    of the insertion time of record
 '''
 @dataclass
 class UpdateFlightCommand(CommandHandler):
@@ -76,7 +76,7 @@ class UpdateFlightCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument('-f','--flightId', type=int, nargs=None, help="The flightId to update information for")
+        parser.add_argument('-f','--flightId', type=int, nargs=None, help="The flightId to update information for", required=True)
         parser.add_argument('-fp','--flightPathId', type=int, nargs=None, help="The flightPathId to set the flight for")
         parser.add_argument('-a','--airplaneId', type=int, nargs=None, help="The flightId to update information for")
         parser.add_argument('-ud', '--undoDeletion', action='store_true', help="Will reverse the deletion of a flight")
