@@ -5,6 +5,7 @@ from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.repositories.PilotRepository import pilotRepository
+from FlightManagementSoftware.Entities.Pilot import Pilot
 from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
 
 '''
@@ -34,7 +35,7 @@ class ViewPilotsCommand(CommandHandler):
     def Handle(self):
         pilots : DataFrame
         if self.pilotId:
-            pilots = pilotRepository.QueryById(self.pilotId)
+            pilots = Pilot.QueryById(self.pilotId)
 
         pilots = pilotRepository.QueryPilots(self.includeDeleted, self.searchName)    
         print(pilots)

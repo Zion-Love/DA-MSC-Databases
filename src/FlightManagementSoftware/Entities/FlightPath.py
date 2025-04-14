@@ -20,7 +20,7 @@ class FlightPath(EntityBase, Mappable):
         qry = '''
             SELECT * FROM FlightPath fp WHERE fp.FromDestinationId = ? AND fp.ToDestinationId = ?
         '''
-        return cls.Map(QueryResult(qry, (fromDestinationId, toDestinationId)).AssertSingleOrNull())
+        return cls.Map(QueryResult(qry, fromDestinationId, toDestinationId).AssertSingleOrNull())
 
 
     def Create(self):

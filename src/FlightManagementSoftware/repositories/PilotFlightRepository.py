@@ -29,7 +29,7 @@ class PilotFlightRepository(RepositoryBase):
     def QueryByPilotFlight(self, pilotId : list[int] | int = None, flightId : list[int] | int = None) -> DataFrame:
         
         if(pilotId == None and flightId == None):
-            raise Exception("No filters supplied to QueryByPilotFlight")
+            raise Exception("No filters supplied to PilotRepository.QueryByPilotFlight")
         
         
         qry = pilotFlightsBaseQuery

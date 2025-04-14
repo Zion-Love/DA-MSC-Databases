@@ -10,6 +10,8 @@ from FlightManagementSoftware.cli.Commands.DeletePilot import DeletePilotCommand
 from FlightManagementSoftware.cli.Commands.CreateFlightPath import CreateFlightPathCommandParser
 from FlightManagementSoftware.cli.Commands.CreateFlight import CreateFlightCommandParser
 from FlightManagementSoftware.cli.Commands.ViewDestinations import ViewDestinationsCommandParser
+from FlightManagementSoftware.cli.Commands.DeleteFlightPath import DeleteFlightPathCommandParser
+from FlightManagementSoftware.cli.Commands.ViewFlightPaths import ViewFlightPathsCommandParser
 
 # A map that builds our cli commands with key as the primary argument to execute the command
 # each parser will build the commands specific arguments
@@ -42,21 +44,29 @@ commandMap = {
         "parser" : UpdateFlightCommandParser,
         "help": "Update information surrounding a specific Flight"
     },
-    # "DeletePilot" : {
-    #     "parser" : DeletePilotCommandParser,
-    #     "help" : "Delete a Pilot by their unique Id"
-    # },
+    "DeletePilot" : {
+        "parser" : DeletePilotCommandParser,
+        "help" : "Delete a Pilot by their unique Id"
+    },
     "CreateFlight" : {
-        "parser" : CreateFlightPathCommandParser,
+        "parser" : CreateFlightCommandParser,
         "help" : "Create a Flight"
     },
     "CreateFlightPath": {
-        "parser" : CreateFlightCommandParser,
+        "parser" : CreateFlightPathCommandParser,
         "help" : "Create a FlightPath"
     },
     "ViewDestinations" : {
         "parser" : ViewDestinationsCommandParser,
         "help"  : "View Destinations matching criteria"
+    },
+    "DeleteFlightPath" : {
+        "parser": DeleteFlightPathCommandParser,
+        "help" : "Delete flight paths and their pending flights"
+    },
+    "ViewFlightPaths" : {
+        "parser" : ViewFlightPathsCommandParser,
+        "help" : "View FlightPaths matching criteria"
     }
 }
 
@@ -77,3 +87,7 @@ def main():
         args['command'](**args)
     except Exception as e:
         print(e)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,18 +1,3 @@
--- Having Countries stored in a table like this means we can 
--- actively track which countries our Flight management software manages flights from / to
--- The idea being scalability of the software, if the flight management company expanded to a new country
--- we could add that in here , likewise should the need to scale down we can soft delete the corresponding country
--- in the unlikely event of a border lockdown an allowingflights bit is used
-CREATE TABLE Country (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    "Name" NVARCHAR(100) NOT NULL,
-    IsoCode NVARCHAR(3) NOT NULL UNIQUE,
-    AllowingFlights BIT NOT NULL,
-    CreatedDate DATETIME2 NOT NULL,
-    DeletedDate DATETIME2
-);
-
-
 INSERT INTO Country (Id, "Name", IsoCode , AllowingFlights, CreatedDate, DeletedDate) VALUES (1,'United Kingdom', 'GBR', 1, DATETIME('now'), NULL);
 INSERT INTO Country (Id, "Name", IsoCode , AllowingFlights, CreatedDate, DeletedDate) VALUES (2,'France', 'FRA', 1, DATETIME('now'), NULL);
 INSERT INTO Country (Id, "Name", IsoCode , AllowingFlights, CreatedDate, DeletedDate) VALUES (3,'Germany', 'DEU', 1, DATETIME('now'), NULL);
@@ -21,34 +6,11 @@ INSERT INTO Country (Id, "Name", IsoCode , AllowingFlights, CreatedDate, Deleted
 INSERT INTO Country (Id, "Name", IsoCode , AllowingFlights, CreatedDate, DeletedDate) VALUES (6,'Spain', 'SPA', 1, DATETIME('now'), NULL);
 
 
--- Airlines tend to be global companies for obvious reasons so 
-CREATE TABLE Airline (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    "Name" NVARCHAR(100) NOT NULL,
-    CreatedDate DateTime2 NOT NULL,
-    DeletedDate DateTime2
-);
-
-
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (1,"AirTrainUK", DATETIME('now'), NULL);
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (2,"FlyingLion", DATETIME('now'), NULL);
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (3,"OurPlanesAlmostDontCrashCo", DATETIME('now'), NULL);
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (4,"Tykes plastic planes", DATETIME('now'), NULL);
 INSERT INTO Airline (Id, "Name", CreatedDate, DeletedDate) VALUES (5,"Flying Portaloo", DATETIME('now'), NULL);
-
-
-
-CREATE TABLE Destination (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    CountryId INTEGER NOT NULL,
-    "Name" NVARCHAR(100) NOT NULL,
-    AirportCode NVARCHAR(3) UNIQUE, -- unique ignores nulls, could be null for private airfield for example
-    Active BIT NOT NULL,
-    CreatedDate DATETIME2 NOT NULL,
-    DeletedDate DATETIME2,
-
-    FOREIGN KEY (CountryId) REFERENCES Country
-);
 
 
 -- UK Destinations
@@ -64,26 +26,6 @@ INSERT INTO Destination (Id, CountryId, "Name", AirportCode, Active, CreatedDate
 -- FRA Destinations
 
 
-
--- This table defines the Destinations valid flight paths, when flights are to be created
--- it must first check that it is a valid active flight path.
--- We could have certain flight paths blocked for various reasons 
--- such as airspace being shut down en route, or a specific airport
--- not accepting fligts at this time, this is marked here but Fligts to be scheduled should also respect 
--- both the To and From Airports Activeflag as well as the Airports countries AllowingFlights flag
-CREATE TABLE FlightPath (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    FromDestinationId INTEGER NOT NULL,
-    ToDestinationId INTEGER NOT NULL,
-    DistanceKm INTEGER NOT NULL,
-    Active BIT NOT NULL,
-    CreatedDate DATETIME2 NOT NULL,
-    DeletedDate DATETIME2,
-
-    FOREIGN KEY (FromDestinationId) REFERENCES Destination,
-    FOREIGN KEY (ToDestinationId) REFERENCES Destination,
-    CONSTRAINT Columns_Cannot_Be_Equal CHECK (FromDestinationId <> ToDestinationId)
-);
 
 
 -- London Stansted -> san sebastian
@@ -103,19 +45,6 @@ INSERT INTO FlightPath (Id, FromDestinationId, ToDestinationId, DistanceKm, Acti
     (5, 5, 4, 452, 1, DATETIME('2000-07-08'), NULL);
 
 
-CREATE Table Airplane (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ModelNumber NVARCHAR(200) NOT NULL, 
-    ManufacturedDate DATETIME2 NOT NULL, 
-    LastServiceDate DATETIME2 NOT NULL, -- For newly added planes this will match CreatedDate
-    PassengerCapacity INTEGER NOT NULL,
-    CurrentDestinationId INTEGER,
-    CreatedDate DATETIME2 NOT NULL,
-    DeletedDate DATETIME2,
-
-    FOREIGN KEY (CurrentDestinationId) REFERENCES Destination
-);
-
 INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentDestinationId, CreatedDate, DeletedDate) 
     VALUES (1, '1to87987ijh982', DATETIME('2001-01-01'), date('now'), 160, null, date('now'), null);
 INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, PassengerCapacity, CurrentDestinationId, CreatedDate, DeletedDate) 
@@ -128,37 +57,12 @@ INSERT INTO Airplane (Id, ModelNumber, ManufacturedDate, LastServiceDate, Passen
     VALUES (5, '08meb08nb404', DATETIME('2010-07-02'), date('now'), 4, 5, date('now'), null);
 
 
--- Pilots in most cases are employed by specific airlines , except in the case of private flights
--- since it was not mentioned in the brief I have not included hanlding for private flights
--- especially since private flights flight paths can get more complicated , having to dart around closed airspace much more frequently
--- due to lower flying altitude etc, the pilots of those aircrafts tend to submit flight plans to their destination bases
-CREATE TABLE Pilot (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    "Name" NVARCHAR(100) NOT NULL,
-    AirlineId INTEGER,
-    CreatedDate DateTime2 NOT NULL,
-    DeletedDate DateTime2
-);
-
 INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (1, 'Steve Buscemi', 1, DATETIME('now'), NULL);
 INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (2, 'Daniel Radcliffe', 2, DATETIME('now'), NULL);
 INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (3, 'Dr. Strange Love', 1, DATETIME('2020-01-01'), NULL);
 INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (4, 'The forces of evil', 3, DATETIME('2022-10-25'), DATETIME('2023-05-02'));
 INSERT INTO Pilot (Id, "Name", AirlineId, CreatedDate, DeletedDate) VALUES (5, 'Snakes in human clothing', 3, DATETIME('2020-02-14'), NULL);
 
-
-CREATE TABLE Flight (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    FlightPathId INTEGER NOT NULL,
-    AirplaneId INTEGER NOT NULL,
-    DepartureTimeUTC DATETIME2,
-    ArrivalTimeUTC DATETIME2,
-    CreatedDate DATETIME2 NOT NULL,
-    DeletedDate DATETIME2,
-
-    FOREIGN KEY (FlightPathId) REFERENCES FlightPath,
-    FOREIGN KEY (AirPlaneId) REFERENCES Airplane
-);
 
 INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeUTC, CreatedDate, DeletedDate) VALUES
     (1, 1, 1, DATETIME('2025-06-02 12:45:00'), null, date('now'), null);
@@ -170,19 +74,6 @@ INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeU
     (4, 4, 2, DATETIME('2020-02-01 09:36:00'), DATETIME('2020-02-01 12:32:22'), date('now'), null);
 INSERT INTO Flight (Id, FlightPathId, AirPlaneId, DepartureTimeUTC, ArrivalTimeUTC, CreatedDate, DeletedDate) VALUES
     (5, 5, 3, DATETIME('2026-02-01 10:28:12'), null, date('now'), null);
-
-
--- This table details a many to many for pilot assignment to flights
--- I am aware most flights have 2-3 pilots but doing it this way allows us to 
--- have more if need be , for example if a junior is joining to 'shadow' their peers
-CREATE TABLE PilotFlight (
-    PilotId INTEGER NOT NULL,
-    FlightId INTEGER NOT NULL,
-
-    PRIMARY KEY (PilotId, FlightId),
-    FOREIGN KEY (PilotId) REFERENCES Pilot,
-    FOREIGN KEY (FlightId) REFERENCES Flight
-);
 
 
 INSERT INTO PilotFlight (PilotId, FlightId) VALUES (1,1);

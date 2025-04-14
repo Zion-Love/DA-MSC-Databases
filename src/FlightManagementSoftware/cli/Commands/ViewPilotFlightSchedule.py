@@ -13,7 +13,12 @@ from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
 
 
 '''
-    Request to view a secific pilots flight schedule, requires the pilotId
+    This command will View a specific Pilot(s) Flight Schedule
+
+    can be filtered by :
+    - includeDeleted
+    - startDate : Where DepartureTimeUTC >= startDate
+    - endDate : Where DepartureTimeUTC <= endDate
 '''
 
 @dataclass
@@ -28,8 +33,10 @@ class ViewPilotFlightScheduleCommand(CommandHandler):
         if self.endDate != None: assert(self.startDate < self.endDate)
 
         if self.pilotId != None: 
-            self.pilotId = AssertIsPositiveInteger(self.pilotId)
-        self.startDate = AssertDateTimeString(self.startDate)
+            if isinstance(self.pilotId,int):
+                self.pilotId = AssertIsPositiveInteger(self.pilotId)
+            elif isinstance(self.pilotId, list):
+                self.pilotId = [AssertIsPositiveInteger(i) for i in self.pilotId]
 
         if self.startDate != None and self.endDate != None:
             if self.startDate > self.endDate:
@@ -57,7 +64,7 @@ class ViewPilotFlightScheduleCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument('-p','--pilotId', nargs=1, type=int, help="The pilotId whose schedule to view", required=True)
+        parser.add_argument('-p','--pilotId', nargs='+', type=int, help="The pilotId whose schedule to view", required=True)
 
         parser.add_argument('-s','-from','-begin','-start','--startDate', nargs='?', 
             type=lambda x: AssertDateTimeString(x),

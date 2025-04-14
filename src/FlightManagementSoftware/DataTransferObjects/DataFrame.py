@@ -26,7 +26,7 @@ class DataFrame:
 
         # construct an empty dataframe using the Mappable field names
         # will silently handle empty query results
-        if len(data) == 0:
+        if data == None or len(data) == 0:
             self.data = []
             return
         

@@ -10,8 +10,7 @@ from FlightManagementSoftware.repositories.DestinationRepository import destinat
        - desitinationId : can either be singular or multiple
        - countryCode : the country IsoCode to filter for
        - includeInactive
-       -
-
+       - includeDeleted 
 '''
 
 @dataclass
@@ -26,7 +25,7 @@ class ViewDestinationsCommand(CommandHandler):
         pass
     
     def Handle(self):
-        destinations = destinationRepository.QueryDestination(
+        destinations = destinationRepository.QueryDestinations(
             destinationId=self.destinationId,
             countryCode=self.countryCode,
             includeDeleted=self.includeDeleted,

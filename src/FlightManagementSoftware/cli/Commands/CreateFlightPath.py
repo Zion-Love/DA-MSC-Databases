@@ -20,8 +20,8 @@ class CreateFlightPathCommand(CommandHandler):
 
 
     def Validate(self):
-        if (not (self.fromDestinationId != None ^ self.fromDestinationAirportCode != None) or
-           not (self.toDestinationId != None ^ self.toDestinationAirportCode != None)):
+        if (not ((self.fromDestinationId != None) != (self.fromDestinationAirportCode != None)) or
+            not ((self.toDestinationId != None) != (self.toDestinationAirportCode != None))):
            raise AbortCommandException(f"You must supply both a from and to destination either as Ids or airportCodes") 
 
         self.fromDestination : Destination = (
@@ -52,11 +52,13 @@ class CreateFlightPathCommand(CommandHandler):
 
     def Handle(self):
         flightPath = FlightPath(
+            Id=None,
             FromDestinationId=self.fromDestination.Id,
             ToDestinationId=self.toDestination.Id,
             DistanceKm=self.distanceKm,
             Active=self.active,
-            CreatedDate=datetime.now()
+            CreatedDate=datetime.now(),
+            DeletedDate=None
         )
         # infer distance from reverse route if found
         if self.existingFlightPath != None and self.distanceKm == None:
@@ -69,11 +71,13 @@ class CreateFlightPathCommand(CommandHandler):
                 print(f"The inverse flight path from {self.toDestination.Name} to {self.fromDestination.Name} already exists , skipping")
             else:
                 inverseFlightPath = FlightPath(
+                    Id=None,
                     FromDestinationId=self.toDestination.Id,
                     ToDestinationId=self.fromDestination.Id,
                     DistanceKm=self.distanceKm,
                     Active=self.active,
-                    CreatedDate=datetime.now()
+                    CreatedDate=datetime.now(),
+                    DeletedDate=None
                 )
                 inverseFlightPath.Create()
                 print(f"Created Inverse flight path from {self.toDestination.Name} to {self.fromDestination.Name} with Id : {inverseFlightPath.Id}")
@@ -88,7 +92,7 @@ class CreateFlightPathCommandParser(CommandParser):
     def BuildCommandArgs(self, parser):
         parser.add_argument('-fId','-fromId',"--fromDestinationId", nargs=None, type=int, help="The Departure destination Id", required=True)
         parser.add_argument('-tId','-toId',"--toDestinationId", nargs=None, type=int, help="The Arrival destination Id", required=True)
-        parser.add_argument('-d','-dist','-distance',"--disanceKm", nargs=None, type=int, help="The Distance in Km between thw two destinations")
+        parser.add_argument('-d','-dist','-distance',"--distanceKm", nargs=None, type=int, help="The Distance in Km between thw two destinations", required=True)
         parser.add_argument('-ia','--active', default=True, action='store_false', help="If included will mark the flight path as inactive")
         parser.add_argument('-i','-inv','--alsoCreateInverse', action='store_true', help="If included will create both the desired flight path and its inverse direction")
         parser.set_defaults(command=self.run)

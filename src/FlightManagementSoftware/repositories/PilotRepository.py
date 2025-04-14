@@ -22,23 +22,6 @@ class PilotRepository(RepositoryBase):
         super().__init__()
         pass
 
-
-    def QueryById(self, pilotId : int | list[int]) -> DataFrame:
-        if(pilotId == None):
-            raise Exception("PilotRepository.QueryById requires at least 1 Id")
-        params = []
-        query = f"""
-            SELECT * from Pilot p
-        """
-        if(isinstance(pilotId, int)):
-            query += " WHERE p.Id = ?"
-            return DataFrame(Pilot.Map(QueryResult(query, pilotId), type(Pilot)))
-        elif(len(pilotId) > 1):
-            query += ' WHERE p.Id IN ?'
-            params = fr"({str.join(', ', pilotId)})"
-            return DataFrame(Pilot.Map(QueryResult(query, *params), type(Pilot)))
-
-
     def QueryByName(self, name : str) -> DataFrame:
         query = r"""
             SELECT * FROM Pilot p WHERE p.'Name' = ?
@@ -89,55 +72,34 @@ class PilotRepository(RepositoryBase):
             JOIN Destination fromD
                 on fromD.Id = fp.FromDestinationId
 
-            {PilotIdFilter}
-            {CreatedDateFilter}
-            {IncludeDeletedFlightsFilter}
+            {MainQueryFilter}
 
             ORDER BY p.Name , f.DepartureTimeUTC ASC
         '''
         params = []
+        mainQueryFilter = ""
 
         # Apply our pilotId filter(s) if one exitsts
-        if pilotId == None:
-            qry = qry.replace("{PilotIdFilter}", "")
-        else:
-            if isinstance(pilotId, int):
-                qry = qry.replace("{PilotIdFilter}", " WHERE p.Id = ?")
-                params.append(pilotId)
-            elif isinstance(pilotId, list) and len(pilotId) == 1:
-                qry = qry.replace("{PilotIdFilter}", " WHERE p.Id = ?")
-                params.append(pilotId[0])
-            elif isinstance(pilotId, list) and len(pilotId) > 1:
-                qry = qry.replace("{PilotIdFilter}", " WHERE p.Id in ?")
-                params.append(f"({','.join(pilotId)})")
+        if isinstance(pilotId, int):
+            mainQueryFilter += " WHERE p.Id = ?"
+            params.append(pilotId)
+        elif isinstance(pilotId, list):
+            mainQueryFilter += f" WHERE p.Id in ({','.join(['?'] * len(pilotId))})"
+            params.extend(pilotId)
 
-        # Apply our CreatedDate filter if one exsits
-        # using a prefix keyword if we have also got a pilot filter
-        createdDateFilterKeyword = " WHERE" if pilotId == None else " AND"
-        if startDate == None and endDate == None:
-            qry = qry.replace("{CreatedDateFilter}", "")
-        else:
-            if startDate != None:
-                if endDate != None:
-                    qry = qry.replace(r"{CreatedDateFilter}", f"{createdDateFilterKeyword} f.CreatedDate >= ? AND f.CreatedDate <= ?")
-                    params.append(startDate)
-                    params.append(endDate)
-                else:
-                    qry = qry.replace(r"{CreatedDateFilter}", f"{createdDateFilterKeyword} f.CreatedDate >= ?")
-                    params.append(startDate)
-            elif endDate != None and startDate == None:
-                qry = qry.replace(r"{CreatedDateFilter}", f"{createdDateFilterKeyword} f.CreatedDate <= ?")
-                params.append(endDate)
+        # Apply our date range filters
+        if startDate != None:
+            mainQueryFilter += " WHERE f.DepartureTimeUTC >= ? " if mainQueryFilter == "" else " AND f.DepartureTimeUTC >= ?"
+            params.append(startDate)
+        if endDate != None:
+            mainQueryFilter += " WHERE f.DepartureTimeUTC <= ? " if mainQueryFilter == "" else " AND f.DepartureTimeUTC <= ?"
+            params.append(endDate)
 
-        # Apply our deletion filter
+        # Apply deleted filter if needed
         if not includeDeletedFlights:
-            if pilotId != None or startDate != None or endDate != None:
-                qry = qry.replace(r"{IncludeDeletedFlightsFilter}" , " AND f.DeletedDate IS NULL")
-            else:
-                qry = qry.replace(r"{IncludeDeletedFlightsFilter}" , " WHERE f.DeletedDate IS NULL")
-        else:
-            qry = qry.replace(r"{IncludeDeletedFlightsFilter}", "")
-                
+            mainQueryFilter += " WHERE f.DeletedDate IS NULL" if mainQueryFilter == "" else " AND f.DeletedDate IS NULL"
+ 
+        qry = qry.replace("{MainQueryFilter}", mainQueryFilter)
         
         return DataFrame(PilotFlightScheduleDto.Map(QueryResult(qry, *params)), PilotFlightScheduleDto)
 

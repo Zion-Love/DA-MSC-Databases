@@ -1,6 +1,3 @@
-from FlightManagementSoftware.db.sqlite import dbConnectionInstance
-from FlightManagementSoftware.Entities.QueryResult import QueryResult
-
 '''
     This class doesnt do much other than mark our repositories
 
@@ -8,5 +5,5 @@ from FlightManagementSoftware.Entities.QueryResult import QueryResult
     Dependancy injection instances
 '''
 class RepositoryBase:
-    def __init__(self):
+    def __init__(self , *args , **kwargs):
         pass

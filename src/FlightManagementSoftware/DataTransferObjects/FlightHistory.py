@@ -10,18 +10,6 @@ from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 '''
 
 @dataclass
-class FlightHistoryDto(Mappable):
-    DepartureDate : datetime
-    ArrivalTime : datetime
-    DepartureLocation : str
-    ArrivalLocation : str
-    Destination : str
-    CreatedDate : datetime
-    DeletedDate : datetime
-    Pilots : str
-
-
-@dataclass
 class PilotFlightHistorySummaryDto(Mappable):
     PilotId : int
     PilotName : str
@@ -29,16 +17,6 @@ class PilotFlightHistorySummaryDto(Mappable):
     EndDate : datetime
     FlightsUndertaken : int
     FlightsCancelled : int  # understood as the number of flights assigned to this Pilot that have a deletedDate
-    TotalAirMilesTravelled : int
-
-
-@dataclass 
-class AirplaneFlightHistoryDto(Mappable):
-    AirplaneId : int
-    StartDate : datetime
-    EndDate : datetime
-    FlightsUndertaken : int
-    FlightsCancelled : int
     TotalAirMilesTravelled : int
 
 
@@ -64,3 +42,16 @@ class FlightScheduleDto(Mappable):
     ArrivalTimeUTC : datetime
     Pilots : str # an aggregated list of pilotIds
     FlightDeletionDate : datetime
+
+'''
+p.Id as FlightPathId, fromDestination.Name as FromDestination,
+           toDestination.Name as ToDestination, fp.DistanceKm, fp.Active, fp.DeletedDate 
+'''
+@dataclass
+class FlightPathVerbose(Mappable):
+    FlightPathId : int
+    FromDestination : str
+    ToDestination : str
+    DistanceKm : int
+    Active : bool
+    DeletedDate : datetime

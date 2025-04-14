@@ -17,7 +17,8 @@ destinationBaseQuery = r'''
 
 class DestinationRepository(RepositoryBase):
 
-    def QueryDestination(
+    # Adding in ability to query by a country c
+    def QueryDestinations(
             self,
             destinationId : int | list[int] = None,
             countryCode : str | list[str] = None,

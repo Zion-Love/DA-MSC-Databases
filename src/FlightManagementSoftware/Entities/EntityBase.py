@@ -21,8 +21,6 @@ dbColumnTypeMap = {
 class EntityBase(ABC):
     @classmethod
     def QueryAll(cls) -> DataFrame:
-        if(not issubclass(cls, Mappable)):
-            raise Exception("Entity Base must inherit Mappable")
         qry = f'SELECT * FROM {cls.__name__};'
 
         return DataFrame(cls.Map(QueryResult(qry)))
@@ -49,16 +47,37 @@ class EntityBase(ABC):
             return None if result == None else result[0]
         else:
             raise Exception(f"Could not search for Ids {Id} in {cls.__name__}.QueryById")
+        
+
+    @classmethod
+    def _DeleteById(cls, Id : int | list[int]):
+        parameters = []
+        softDeleteColumn = [f.name for f in fields(cls) if f.name in ['DeletionDate', 'DeletedDate']]
+
+        if len(softDeleteColumn) == 1:
+            qry = f'UPDATE {cls.__name__} SET {softDeleteColumn} = {datetime.now()} WHERE Id'
+        else:
+            qry = f'DELETE FROM {cls.__name__} WHERE Id'
+
+        if isinstance(Id, int):
+            qry += " = ?"
+            parameters.append(Id)
+        elif isinstance(Id, list) and len(Id) > 0:
+            qry += f" in ({['?' * len(Id)]})"
+            parameters.extend(Id)
+        else:
+            raise Exception("No ides provided to delete")
+        
+        QueryResult(qry, *parameters)
     
 
     # Each of these operations accept a transaction variable , this means
     # we can bespoke handle dependant operations in the subclass implementation
     # of the corresponding abstract methods Create, Delete, Update ...
 
-    # TODO : investigate creating a decorator function to add this instead of drilling transaction through like this...
     # I should convert to using instance fields rather than looking for presence of Id column
     # this is only relevant for PilotFlight that has no Id column
-    # Since it is the onl entity not using this I will just overwrite this behaviour inside its Delete implementation
+    # Since it is the only entity not using this I will just overwrite this behaviour inside its Delete implementation
     # for a larger scale project with multiple many to many relationship tables I would change this to be more generic
     # and not require the presence of an Id column
     
@@ -106,19 +125,22 @@ class EntityBase(ABC):
         instance.Id = transaction.lastrowid
 
 
-    # Uses our in memory instance to update mathing Id record columns to our in memory instance values
+    # Generic update method from in memeory representation of entity record
     @classmethod
     def _Update(cls, instance, transaction = None):
         columns = [f.name for f in fields(cls) if f.name != 'Id']
         qry = f'''
-            UPDATE {cls.__name__} ({str.join(', ',columns)}) VALUES ({str.join(', ', ['?'] * len(columns))}) WHERE Id = ?
+            UPDATE {cls.__name__} SET {str.join(', ',[ f'{c} = ?' for c in columns])} WHERE Id = ?
         '''
         print(qry)
+
+        params = [instance.__dict__[column] for column in columns] 
+        params.append(instance.Id)
         if(transaction != None):
-            transaction.execute(qry, tuple([instance.__dict__[column] for column in columns]))
+            transaction.execute(qry, *params)
         else :
             with(dbConnectionInstance.Get_Transaction() as transaction):
-                transaction.execute(qry, tuple([instance.__dict__[column] for column in columns].append(instance.Id)))
+                transaction.execute(qry, params)
 
 
     # these methods are required overrides for a subclass of EntityBase to be valid

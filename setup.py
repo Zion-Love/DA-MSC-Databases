@@ -19,7 +19,10 @@ setup (
         ]
     },
     package_data={
-        'FlightManagementSoftware': ['sql/CreateTestData.sql', 'db/database.sqllite3'],
+        'FlightManagementSoftware': [
+            'sql/CreateTestData.sql',
+            'sql/CreateTables.sql', 
+            'db/database.sqllite3'],
     },
     python_requires=">=3.10"
 )

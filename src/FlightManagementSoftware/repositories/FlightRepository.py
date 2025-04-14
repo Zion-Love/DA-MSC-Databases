@@ -131,9 +131,29 @@ class FlightRepository(RepositoryBase):
 
     def QueryAll(self):
         qry = flightScheduleBaseQuery
-        qry = qry.replace("{PilotFilter}" , "")
         qry = qry.replace("{MainQueryFilter}" , "")
         return DataFrame(FlightScheduleDto.Map(QueryResult(qry)), FlightScheduleDto)
     
+
+    def QueryScheduleByFlightPath(self, flightPathId : int | list[int], includeDeleted : bool = False):
+        qry = flightScheduleBaseQuery
+
+        parameters = []
+
+        mainQueryFilter = ""
+        if isinstance(flightPathId,int):
+            mainQueryFilter += "WHERE fp.Id = ?"
+            parameters.append(flightPathId)
+        elif isinstance(flightPathId, list) and all([isinstance(Id,int) for Id in flightPathId]):
+            mainQueryFilter += f"WHERE fp.Id IN ({','.join(['?' * len(flightPathId)])})"
+            parameters.extend(flightPathId)
+
+        if not includeDeleted:
+            mainQueryFilter += " AND f.DeletionDate IS NULL"
+
+        qry = qry.replace("{MainQueryFilter}", mainQueryFilter)
+
+        return DataFrame(QueryResult(FlightScheduleDto.Map(qry,*parameters)), FlightScheduleDto)
+
 
 flightRepository : FlightRepository = FlightRepository()

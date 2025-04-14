@@ -29,34 +29,48 @@ class UpdateFlightPathCommand(CommandHandler):
 
 
     def Validate(self):
-        if (not (self.fromDestinationId != None ^ self.fromDestinationAirportCode != None) or
-           not (self.toDestinationId != None ^ self.toDestinationAirportCode != None)):
-           raise AbortCommandException(f"You must supply both a from and to destination either as Ids or airportCodes") 
-
         self.existingFlightPath : FlightPath = FlightPath.QueryById(self.flightPathId)
+        self.fromDestination = None
+        self.toDestination = None
 
         if self.existingFlightPath == None:
             raise AbortCommandException(f"Flight path with Id {self.fligtPathId} not found")
         
-        self.fromDestination : Destination = (
-            Destination.QueryById(self.fromDestinationId) if self.fromDestinationId != None 
-            else Destination.QueryByAirportCode(self.fromDestinationAirportCode)
-        )
+        if self.fromDestinationAirportCode != None or self.fromDestinationId != None:
+            self.fromDestination : Destination = (
+                Destination.QueryById(self.fromDestinationId) if self.fromDestinationId != None 
+                else Destination.QueryByAirportCode(self.fromDestinationAirportCode)
+            )
 
-        if self.fromDestination == None:
-            raise AbortCommandException("Could not find From Destination")
+            if self.fromDestination == None:
+                raise AbortCommandException("Could not find From Destination")
+            
+        if self.toDestinationAirportCode == None or self.toDestinationId == None:
+            self.toDestination : Destination = (
+                Destination.QueryById(self.toDestinationId) if self.toDestinationId != None 
+                else Destination.QueryByAirportCode(self.toDestinationAirportCode)
+            )
 
-        self.toDestination : Destination = (
-            Destination.QueryById(self.toDestinationId) if self.toDestinationId != None 
-            else Destination.QueryByAirportCode(self.toDestinationAirportCode)
-        )
-
-        if self.toDestination == None:
-            raise AbortCommandException("Could not find To Destination")
+            if self.toDestination == None:
+                raise AbortCommandException("Could not find To Destination")
 
 
     def Handle(self):
-        pass
+        if self.fromDestination != None:
+            self.existingFlightPath.FromDestinationId = self.fromDestination.Id
+
+        if self.toDestination!= None:
+            self.existingFlightPath.ToDestinationId = self.toDestination.Id
+
+        if self.distanceKm != None:
+            self.existingFlightPath.DistanceKm = self.distanceKm
+
+        if self.active != None:
+            self.existingFlightPath.Active = self.active
+
+        self.existingFlightPath.Update()
+        print(f"Succesfully updated flight path : {self.existingFlightPath}")
+        
 
 
 class UpdateFlightPathCommandParser(CommandParser):

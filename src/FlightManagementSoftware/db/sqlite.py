@@ -23,10 +23,13 @@ from typing import Generator
     and create the tables dynamically from that , this would however mean pretty much creating my owm ORM of sorts, likely outside the scope of this project.
 '''
 
+CREATE_TABLE_RESOUCE = 'sql/CreateTables.sql'
+TEST_DATA_RESOURCE =  'sql/CreateTestData.sql'
+
+
 class SqliteDbConnection:
     def __init__(self):
         self.relative_path : str = os.path.dirname(__file__)
-        self.createTestDataResouce = 'sql/CreateTestData.sql'
         self.conn : Connection = None
         self.Init_db(refresh=False)
 
@@ -100,24 +103,31 @@ class SqliteDbConnection:
 
         # Refference to a hardcoded sql file containing all the setup requirements for the database
         # things like tble definitions and test data used by the application
-        test_data_file : str = pkg_resources.resource_filename('FlightManagementSoftware',self.createTestDataResouce)
+        testDataFile : str = pkg_resources.resource_filename('FlightManagementSoftware', TEST_DATA_RESOURCE)
+        createTableFile : str = pkg_resources.resource_filename('FlightManagementSoftware', CREATE_TABLE_RESOUCE)
 
-        if(not os.path.isfile(test_data_file)):
-            raise Exception("Cannot find ../db/CreateTestData.sql db initialization aborted")
+        if(not os.path.isfile(testDataFile)):
+            raise Exception("Cannot find ../sql/CreateTestData.sql db initialization aborted")
+        
+        if(not os.path.isfile(createTableFile)):
+            raise Exception("Cannot find ../sql/CreateTables.sql db initialization aborted")
         
         print("building up database...")
-        with(open(test_data_file, 'r') as testDataFile):
-            test_data_sql = testDataFile.read()
-            sql_commands = test_data_sql.split("--splitcommand--")
-
-            # seperating and completing in a single transaction gives more verbose error result
-            # such that I can find the specific command causing issue
-            # also auto rolling back should it fail means I dont mutate db state on error
-            with(self.Get_Transaction() as transaction):
+        
+        with(self.Get_Transaction() as transaction):
                 try:
-                    transaction.executescript(test_data_sql)
+                    # Run CreateTables.sql first 
+                    with(open(createTableFile, 'r') as createTableFile):
+                        createTableSql = createTableFile.read()
+                        transaction.executescript(createTableSql)
+
+                    # Run CreateTestData.sql second to populate our tables with test data
+                    with(open(testDataFile, 'r') as testDataFile):
+                        testDataSql = testDataFile.read()
+                        transaction.executescript(testDataSql)
                 except Exception as e:
-                    raise Exception(f"Unexpected Exception executing db command : \n {e}")
+                            raise Exception(f"Unexpected Exception executing db command : \n {e}")
+                
         print("db initialized")
 
 
