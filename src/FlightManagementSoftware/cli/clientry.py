@@ -18,11 +18,15 @@ from FlightManagementSoftware.cli.Commands.DeleteFlightPath import DeleteFlightP
 
 from FlightManagementSoftware.cli.Commands.RebuildDatabase import RebuildDatabaseCommandParser
 
+from FlightManagementSoftware.cli.Commands.UpdateAirplane import UpdateAirplaneCommandParser
+from FlightManagementSoftware.cli.Commands.UpdateAirline import UpdateAirlineCommandParser
 from FlightManagementSoftware.cli.Commands.UpdateCountry import UpdateCountryCommandParser
 from FlightManagementSoftware.cli.Commands.UpdateFlight import UpdateFlightCommandParser
+from FlightManagementSoftware.cli.Commands.UpdateFlightPath import UpdateFlightPathCommandParser
 from FlightManagementSoftware.cli.Commands.UpdateDestination import UpdateDestinationCommandParser
 
 from FlightManagementSoftware.cli.Commands.ViewAirlines import ViewAirlinesCommandParser
+from FlightManagementSoftware.cli.Commands.ViewAirlinePilotSummary import ViewAirlinePilotSummaryCommandParser
 from FlightManagementSoftware.cli.Commands.ViewAirplanes import ViewAirplanesCommandParser
 from FlightManagementSoftware.cli.Commands.ViewCountries import ViewCountriesCommandParser
 from FlightManagementSoftware.cli.Commands.ViewDestinations import ViewDestinationsCommandParser
@@ -95,15 +99,19 @@ commandMap = {
         "parser": DeleteFlightPathCommandParser,
         "help": "Deletes a FlightPath"
      },
-     "ViewAirlines": {
+    "ViewAirlines": {
         "parser": ViewAirlinesCommandParser,
         "help": "View Airlines"
      },
-     "ViewAirplanes": {
+    "ViewAirlinePilotSummary": {
+        "parser": ViewAirlinePilotSummaryCommandParser,
+        "help": "Views a summary of the Airlines and their Pilot Counts"
+     },
+    "ViewAirplanes": {
        "parser": ViewAirplanesCommandParser,
        "help": "View Airplanes"  
      },
-     "ViewCountries": {
+    "ViewCountries": {
         "parser": ViewCountriesCommandParser,
         "help": "View Countries"
      },
@@ -131,9 +139,21 @@ commandMap = {
         "parser": UpdateCountryCommandParser,
         "help" : "Update a Country"
     },
+    "UpdateAirplane": {
+        "parser": UpdateAirplaneCommandParser,
+        "help": "Update an Airplanes Information"
+    },
+    "UpdateAirline": {
+        "parser": UpdateAirlineCommandParser,
+        "help": "Update an Airlines Information"
+    },
     "UpdateFlight": {
         "parser": UpdateFlightCommandParser,
         "help": "Update information surrounding a specific Flight"
+    },
+    "UpdateFlightPath": {
+        "parser": UpdateFlightPathCommandParser,
+        "help": "Update FlightPath Information"
     },
     "UpdateDestination": {
         "parser": UpdateDestinationCommandParser,

@@ -27,7 +27,8 @@ class Airplane(EntityBase, Mappable):
     # When deleting an Airplane we also want to soft delete any of their pending flights
     def Delete(self):
         qry = r'''
-            UPDATE Flight f SET f.DeletedDate = DATETIME('now') 
+            UPDATE Flight SET DeletedDate = DATETIME('now') 
+            FROM Flight f
             
             WHERE f.AirplaneId = ?
                 AND f.ArrivalTimeUTC IS NULL

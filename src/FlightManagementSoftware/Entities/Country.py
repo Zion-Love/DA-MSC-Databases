@@ -32,14 +32,12 @@ class Country(EntityBase, Mappable):
             SELECT * FROM Country c
 
             {Filter}
-
-            ORDER BY c.CreatedDate DESC
         '''
         filter = ""
         if not includeDeleted:
             filter += " WHERE c.DeletedDate IS NULL"
         if not includeInactive:
-            filter += " WHERE c.AllowingFlights = 1" if filter == "" else " AND c.AllowinglFlights = 1"
+            filter += " WHERE c.AllowingFlights = 1" if filter == "" else " AND c.AllowingFlights = 1"
 
         qry = qry.replace("{Filter}" , filter)
         return DataFrame(cls.Map(QueryResult(qry)), cls)

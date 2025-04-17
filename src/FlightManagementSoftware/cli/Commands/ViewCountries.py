@@ -13,8 +13,8 @@ from FlightManagementSoftware.Entities.Country import Country
 
 @dataclass
 class ViewCountriesCommand(CommandHandler):
-    includeInactive : bool = False
-    includeDeleted  : bool = False
+    includeInactive: bool = False
+    includeDeleted : bool = False
 
     def Validate(self):
         pass
