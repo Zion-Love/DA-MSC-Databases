@@ -22,7 +22,7 @@ from FlightManagementSoftware.cli.Commands.DeleteAirplane import DeleteAirplaneC
 def __main__():
 
     try:
-        RebuildDatabaseCommand()
+        #RebuildDatabaseCommand()
 
         # Assigning Pilots to flights
         #command = AssignPilotFlightCommand(pilotId=5, flightId=5)
@@ -34,7 +34,7 @@ def __main__():
         #command = ViewFlightPathsCommand(includeDeleted=False,includeInactive=False)
         #command = DeleteAirplaneCommand(airplaneId=2)
         #command = ViewPilotsCommand(pilotId=[5])
-        command = CreatePilotCommand(name="New Pilot Test", airlineId=2)
+        command = ViewDestinationsCommand(destinationId=[1])
 
     except AbortCommandException as e:
         print(e)
