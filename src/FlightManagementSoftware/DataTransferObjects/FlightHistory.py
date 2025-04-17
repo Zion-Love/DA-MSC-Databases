@@ -3,10 +3,8 @@ from datetime import datetime
 from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 
 '''
-    This module contains all of my Data Transfer objects (DTO) related to flight history views
-
-    Ideally you would use pydantic here to apply validation logic to our data classes
-    since python uses dynamica types the annotation here is more of a guide than enforced.
+    This module contains more verbose mapping objects to convert query results to
+    used in cases where queries dont return a 1:1 mapping to the entity columns
 '''
 
 @dataclass
@@ -36,6 +34,7 @@ class PilotFlightScheduleDto(Mappable):
 @dataclass
 class FlightScheduleDto(Mappable):
     FlightId : int
+    AirplaneId : int
     DepartureDestination : str
     ArrivalDestination : str
     DepartureTimeUTC : datetime
@@ -43,10 +42,7 @@ class FlightScheduleDto(Mappable):
     Pilots : str # an aggregated list of pilotIds
     FlightDeletionDate : datetime
 
-'''
-p.Id as FlightPathId, fromDestination.Name as FromDestination,
-           toDestination.Name as ToDestination, fp.DistanceKm, fp.Active, fp.DeletedDate 
-'''
+
 @dataclass
 class FlightPathVerbose(Mappable):
     FlightPathId : int

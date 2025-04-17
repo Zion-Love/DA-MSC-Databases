@@ -23,11 +23,9 @@ class EntityBase(ABC):
     def QueryAll(cls) -> DataFrame:
         qry = f'SELECT * FROM {cls.__name__};'
 
-        return DataFrame(cls.Map(QueryResult(qry)))
+        return DataFrame(cls.Map(QueryResult(qry)), cls)
     
 
-    # not returning as dataframe since a single record is all thats needed
-    # this way we can check the fields directly
     @classmethod
     def QueryById(cls, Id : list[int] | int):
 

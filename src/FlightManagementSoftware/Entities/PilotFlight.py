@@ -45,5 +45,4 @@ class PilotFlight(EntityBase, Mappable):
             WHERE pf.PilotId = ? AND pf.FlightId = ?
         '''
         result = PilotFlight.Map(QueryResult(qry, pilotId, flightId).AssertSingleOrNull())
-        if len(result) == 0: return None
-        return result[0]
+        return result

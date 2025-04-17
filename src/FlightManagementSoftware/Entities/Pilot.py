@@ -2,15 +2,23 @@ from datetime import datetime
 from dataclasses import dataclass
 from FlightManagementSoftware.db.sqlite import dbConnectionInstance
 from FlightManagementSoftware.Entities.EntityBase import EntityBase
+from FlightManagementSoftware.Entities.QueryResult import QueryResult
 from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
 
 @dataclass
 class Pilot(EntityBase, Mappable):
-    Name : str
     Id : int = None
+    Name : str = None
     AirlineId : int = None
     CreatedDate : datetime = None
     DeletedDate : datetime = None
+
+    @classmethod
+    def QueryByAirline(cls, airlineId : int):
+        qry = r'''
+            SELECT * FROM Pilot p WHERE p.AirlineId = ?
+        '''
+        return cls.Map(QueryResult(qry, airlineId))
 
     def Create(self):
         Pilot._Create(self)

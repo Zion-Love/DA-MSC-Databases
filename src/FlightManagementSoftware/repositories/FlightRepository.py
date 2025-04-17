@@ -5,7 +5,7 @@ from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
 from FlightManagementSoftware.DataTransferObjects.FlightHistory import FlightScheduleDto
 
 flightScheduleBaseQuery = r'''
-    SELECT f.Id AS FlightId,f.DepartureTimeUTC , f.ArrivalTimeUTC,
+    SELECT f.Id AS FlightId, f.AirplaneId,f.DepartureTimeUTC , f.ArrivalTimeUTC,
         DepartureDestination.Name AS DepartureDestination, ArrivalDestination.Name AS ArrivalDestination,
         f.DeletedDate AS FlightDeletionDate,
         GROUP_CONCAT(p.Id, ', ') AS Pilots
@@ -155,5 +155,17 @@ class FlightRepository(RepositoryBase):
 
         return DataFrame(QueryResult(FlightScheduleDto.Map(qry,*parameters)), FlightScheduleDto)
 
+
+    def QueryByAirplane(self, 
+            airplaneId : int | list[int], 
+            includeDeleted : bool = False, 
+            pendingOnly : bool = False):
+        qry = flightScheduleBaseQuery
+
+        parameters = []
+        mainQueryFilter = ""
+
+        if isinstance(airplaneId, int):
+            mainQueryFilter += " WHERE "
 
 flightRepository : FlightRepository = FlightRepository()

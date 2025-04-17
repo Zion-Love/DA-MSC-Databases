@@ -1,22 +1,14 @@
 from dataclasses import dataclass
-from FlightManagementSoftware.cli.InputValidator import (
-    AssertDateTimeString,
-    AssertDateAIsBeforeDateB,
-    AssertIsPositiveInteger
-)
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.Entities.FlightPath import FlightPath
 from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
-from FlightManagementSoftware.cli.UserInputHelpers import ContinueYN
 from FlightManagementSoftware.Entities.Destination import Destination
 
 '''
     This command provides a way to update information about a specific flight path
-
-    Intentionally not allowing the editing of the CreatedDate column as this is representative
-    of the insertion time of record
 '''
+
 @dataclass
 class UpdateFlightPathCommand(CommandHandler):
     flightPathId : int
@@ -25,10 +17,14 @@ class UpdateFlightPathCommand(CommandHandler):
     toDestinationId : int = None
     toDestinationAirportCode : str = None
     distanceKm : int = None
-    active : bool = None
+    setInactive : bool = None
+    setActive : bool = None
 
 
     def Validate(self):
+        if self.setInactive == self.setActive:
+            raise AbortCommandException("You cannot supply both setInactive and setActive")
+
         self.existingFlightPath : FlightPath = FlightPath.QueryById(self.flightPathId)
         self.fromDestination = None
         self.toDestination = None
@@ -65,8 +61,10 @@ class UpdateFlightPathCommand(CommandHandler):
         if self.distanceKm != None:
             self.existingFlightPath.DistanceKm = self.distanceKm
 
-        if self.active != None:
-            self.existingFlightPath.Active = self.active
+        if self.setActive:
+            self.existingFlightPath.Active = True
+        if self.setInactive:
+            self.existingFlightPath.Active = False
 
         self.existingFlightPath.Update()
         print(f"Succesfully updated flight path : {self.existingFlightPath}")
@@ -78,8 +76,13 @@ class UpdateFlightPathCommandParser(CommandParser):
         super().__init__(UpdateFlightPathCommand)
 
 
-    # TODO :
     def BuildCommandArgs(self, parser):
-        parser.add_argument('-fp',"--flightPathId", type=lambda x: AssertIsPositiveInteger(x), nargs=None, help="The Flight Path Id to update date for", required=True)
-
+        parser.add_argument("-fp","--flightPathId", type=int, nargs=None, help="The Flight Path Id to update date for", required=True)
+        parser.add_argument("-f","-from","--fromDestinationId", type=int, help="The Departure destination Id for the FlightPath")
+        parser.add_argument("-fc","-fromCode","--fromDestinationAirportCode", type=str, help="The Departure destination Airport Code for the FlightPath")
+        parser.add_argument("-t","-to","--toDestinationId", type=int, help="The Arrival Destination Id for the FlightPath")
+        parser.add_argument("-tc","-to","--toDestinationAirportCode", type=str, help="The Arrival Destination Airport Code for the FlightPath")
+        parser.add_argument("-d","-dist","--distanceKm", type=str, help="The Distance in Km between the two Destinations")
+        parser.add_argument("-i","--setInactive", action='store_true', help="Sets the FlightPath to Inactive")
+        parser.add_argument("-a","--setActive", action='store_true', help="Sets the FlightPath to Active")
         parser.set_defaults(command=self.run)

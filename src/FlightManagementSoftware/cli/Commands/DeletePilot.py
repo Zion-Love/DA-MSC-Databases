@@ -14,7 +14,6 @@ from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
     Requires:
         - pilotId
 '''
-
 @dataclass
 class DeletePilotCommand(CommandHandler):
     pilotId : str

@@ -4,7 +4,7 @@ from FlightManagementSoftware.Entities.PilotFlight import PilotFlight
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.Entities.Pilot import Pilot
 from FlightManagementSoftware.Entities.Flight import Flight
-from FlightManagementSoftware.cli.UserInputHelpers import ContinueYN
+from FlightManagementSoftware.cli.UserInputHelpers import ContinueYN, AbortCommandException
 
 '''
     This command will assign a pilot to a flight
@@ -26,8 +26,8 @@ class AssignPilotFlightCommand(CommandHandler):
     remove : bool = False
 
     def Validate(self):
-        self.pilot : Pilot = Pilot.QueryById(self.pilotId)[0]
-        self.flight : Flight = Flight.QueryById(self.flightId)[0]
+        self.pilot : Pilot = Pilot.QueryById(self.pilotId)
+        self.flight : Flight = Flight.QueryById(self.flightId)
 
         if self.flight.DeletedDate != None or self.flight.ArrivalTimeUTC != None:
             ContinueYN("WARNING: Attempting to modify a pilot assignment for a deleted or completed flight, Continue? (y/n)",)
@@ -36,7 +36,7 @@ class AssignPilotFlightCommand(CommandHandler):
             if self.flight.DeletedDate != None or self.flight.ArrivalTimeUTC != None:
                 ContinueYN("WARNING: Attempting to modify a deleted pilot assignment, Continue? (y/n)")
             else:
-                raise Exception("Cannot add a deleted pilot to an active flight")
+                raise AbortCommandException("Cannot add a deleted pilot to an active flight")
             
 
     def Handle(self):
@@ -47,23 +47,22 @@ class AssignPilotFlightCommand(CommandHandler):
 
 
     def _HandleAddPilot(self):
-        existingAssigment = PilotFlight.QueryPilotFlight(pilotId=self.pilotId, flightId=self.flightId)
+        existingAssigment : PilotFlight = PilotFlight.QueryPilotFlight(pilotId=self.pilotId, flightId=self.flightId)
 
         # guard statement if already added to flight
         if existingAssigment:
-            print(f"Pilot : {f'{self.pilot.Name} (Id:{self.pilot.Id})'} already assigned to flight  (Id:{self.flight.Id})")
-            return 
-
+            raise AbortCommandException(f"Pilot : {f'{self.pilot.Name} (Id:{self.pilot.Id})'} already assigned to flight  (Id:{self.flight.Id})")
+ 
         pilotFlight : PilotFlight = PilotFlight(PilotId=self.pilotId,FlightId=self.flightId)
         try:
             pilotFlight.Create()
             print(f"Pilot : {f'{self.pilot.Name} (Id:{self.pilot.Id})'} successfully assigned to flight (Id:{self.flight.Id})")
         except Exception as e:
-            print(f"Could not complete request : {e}")
+            raise AbortCommandException(f"Could not complete request : {e}")
 
 
     def _HandleRemovePilot(self):
-        existingAssigment = PilotFlight.QueryPilotFlight(pilotId=self.pilotId, flightId=self.flightId)
+        existingAssigment : PilotFlight = PilotFlight.QueryPilotFlight(pilotId=self.pilotId, flightId=self.flightId)
 
         # guard statement if nothing to remove
         if existingAssigment == None:
@@ -81,7 +80,7 @@ class AssignPilotFlightCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser):
-        parser.add_argument('-p','--pilotId', type=int, help="The pilotId to assign")
-        parser.add_argument('-f','--flightId', type=int, help="the flightId to assign to")
+        parser.add_argument('-p','--pilotId', type=int, required=True, help="The pilotId to assign")
+        parser.add_argument('-f','--flightId', type=int, required=True, help="the flightId to assign to")
         parser.add_argument('-r','--remove', action='store_true', help="Specifies to remove the pilot assignment")
         parser.set_defaults(command=self.run)

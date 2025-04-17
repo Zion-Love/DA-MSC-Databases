@@ -40,11 +40,11 @@ class CreateFlightPathCommand(CommandHandler):
         if self.toDestination == None:
             raise AbortCommandException("Could not find To Destination")
         
-        self.existingFlightPath : FlightPath = FlightPath.QueryByDestinationId(self.fromDestination.Id, self.toDestination.Id)
+        self.existingFlightPath : FlightPath = FlightPath.QueryByDestinations(self.fromDestination.Id, self.toDestination.Id)
         if self.existingFlightPath != None:
             raise AbortCommandException(f"Flight path from {self.fromDestination.Name} to {self.toDestination.Name} already exists")
         
-        self.existingInverseFlightPath : FlightPath = FlightPath.QueryByDestinationId(self.toDestination.Id, self.fromDestination.Id)
+        self.existingInverseFlightPath : FlightPath = FlightPath.QueryByDestinations(self.toDestination.Id, self.fromDestination.Id)
 
         if self.existingInverseFlightPath != None and self.existingInverseFlightPath.DistanceKm != self.distanceKm:
             raise AbortCommandException(f"An existing inverse flight path was found with a different distance metric to that supplied")

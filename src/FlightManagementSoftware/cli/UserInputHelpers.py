@@ -1,8 +1,3 @@
-
-'''
-    A reusable helper function for commands that have confirmation steps
-'''
-
 class AbortCommandException(Exception):
     def __init__(self, *args):
         super().__init__(*args)

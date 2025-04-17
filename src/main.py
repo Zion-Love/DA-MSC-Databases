@@ -16,7 +16,6 @@ from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
 
 
 
-
 def __main__():
 
     try:
@@ -30,11 +29,13 @@ def __main__():
         #command = ViewFlightScheduleCommand(flightId=[3,5], includeCompleted=True)
         #command = ViewPilotFlightScheduleCommand(pilotId=[1,2])
         #command = ViewFlightPathsCommand(includeDeleted=False,includeInactive=False)
-        command = ViewFlightPathsCommand()
-        command = UpdateFlightPathCommand(flightPathId=1, fromDestinationId=5, toDestinationId=4, active=0)
-        command = ViewFlightPathsCommand(includeInactive=True)
+        command = ViewFlightScheduleCommand()
+        command = UpdateFlightCommand(flightId=1, departureTimeUTC='1000-01-01')
+        command = AssignPilotFlightCommand(flightId=1, pilotId=3)
+        command = ViewFlightScheduleCommand()
     except AbortCommandException as e:
         print(e)
 
 if __name__ == "__main__" :
     __main__()
+6

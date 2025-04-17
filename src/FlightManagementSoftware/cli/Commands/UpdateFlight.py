@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 from FlightManagementSoftware.cli.InputValidator import (
-    AssertDateTimeString,
-    AssertDateAIsBeforeDateB
+    AssertDateTimeString
 )
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
