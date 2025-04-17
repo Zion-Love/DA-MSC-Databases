@@ -8,6 +8,7 @@ from FlightManagementSoftware.cli.Commands.ViewDestinations import ViewDestinati
 from FlightManagementSoftware.cli.Commands.ViewPilots import ViewPilotsCommand
 from FlightManagementSoftware.cli.Commands.ViewPilotFlightSchedule import ViewPilotFlightScheduleCommand
 from FlightManagementSoftware.cli.Commands.ViewAirlinePilotSummary import ViewAirlinePilotSummaryCommand
+from FlightManagementSoftware.cli.Commands.CreatePilot import CreatePilotCommand
 
 
 from FlightManagementSoftware.cli.Commands.UpdateFlightPath import UpdateFlightPathCommand
@@ -32,7 +33,9 @@ def __main__():
         #command = ViewPilotFlightScheduleCommand(pilotId=[1,2])
         #command = ViewFlightPathsCommand(includeDeleted=False,includeInactive=False)
         #command = DeleteAirplaneCommand(airplaneId=2)
-        command = ViewAirlinePilotSummaryCommand()
+        #command = ViewPilotsCommand(pilotId=[5])
+        command = CreatePilotCommand(name="New Pilot Test", airlineId=2)
+
     except AbortCommandException as e:
         print(e)
 

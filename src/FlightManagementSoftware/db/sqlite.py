@@ -33,6 +33,7 @@ class SqliteDbConnection:
         self.conn : Connection = None
         self.Init_db(refresh=False)
 
+
     def Is_Online(self) -> bool:
         try:
             if(self.conn == None):

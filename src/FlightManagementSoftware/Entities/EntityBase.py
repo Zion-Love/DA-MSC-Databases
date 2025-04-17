@@ -1,16 +1,11 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from dataclasses import fields
-from FlightManagementSoftware.db.sqlite import dbConnectionInstance
-from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
-from FlightManagementSoftware.Entities.QueryResult import QueryResult
 from FlightManagementSoftware.DataTransferObjects.DataFrame import DataFrame
+from FlightManagementSoftware.DataTransferObjects.Mappable import Mappable
+from FlightManagementSoftware.db.sqlite import dbConnectionInstance
+from FlightManagementSoftware.Entities.QueryResult import QueryResult
 
-dbColumnTypeMap = {
-    int : 'INTEGER',
-    str : 'TEXT',
-    datetime : 'DATETIME2'
-}
 
 '''
     An Abstract Base Class (ABC) Used to template 'Entities' or objects that represent database tables directly
@@ -36,13 +31,11 @@ class EntityBase(ABC):
         if isinstance(Id, list) and all([isinstance(i,int) for i in Id]):
             if len(Id) == 0:
                 raise Exception(f"Ids are empty when calling {cls.__name__}.QueryById")
-            qry += f" WHERE Id in ({','.join(['?'] * len(Id))})"
-            result = cls.Map(QueryResult(qry,Id))
-            return None if result == None else result
+            qry += f" WHERE Id IN ({','.join(['?'] * len(Id))})"
+            return cls.Map(QueryResult(qry, *Id))
         elif isinstance(Id, int):
             qry += " WHERE Id = ?"
-            result = cls.Map(QueryResult(qry,Id).AssertSingle())
-            return None if result == None else result[0]
+            return cls.Map(QueryResult(qry, Id).AssertSingle())[0]
         else:
             raise Exception(f"Could not search for Ids {Id} in {cls.__name__}.QueryById")
         
@@ -130,8 +123,6 @@ class EntityBase(ABC):
         qry = f'''
             UPDATE {cls.__name__} SET {str.join(', ',[ f'{c} = ?' for c in columns])} WHERE Id = ?
         '''
-        print(qry)
-
         params = [instance.__dict__[column] for column in columns] 
         params.append(instance.Id)
         if(transaction != None):

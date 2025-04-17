@@ -58,6 +58,6 @@ class CreatePilotCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser : ArgumentParser):
-        parser.add_argument('--name', type=str, help='New pilots name', required=True)
-        parser.add_argument('--airlineId', nargs='?', type=int, help="The AirlineId that the pilot works for")
+        parser.add_argument("-n", "--name", type=str, help='New pilots name', required=True)
+        parser.add_argument("-a","-aId", '--airlineId', nargs=None, type=int, help="The AirlineId that the pilot works for")
         parser.set_defaults(command=self.run)

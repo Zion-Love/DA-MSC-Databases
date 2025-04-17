@@ -60,7 +60,7 @@ CREATE Table Airplane (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     ModelNumber NVARCHAR(200) NOT NULL, 
     ManufacturedDate DATETIME2 NOT NULL, 
-    LastServiceDate DATETIME2 NOT NULL, -- For newly added planes this will match CreatedDate
+    LastServiceDate DATETIME2 NOT NULL,
     PassengerCapacity INTEGER NOT NULL,
     CurrentDestinationId INTEGER,
     CreatedDate DATETIME2 NOT NULL,
@@ -79,7 +79,9 @@ CREATE TABLE Pilot (
     "Name" NVARCHAR(100) NOT NULL,
     AirlineId INTEGER,
     CreatedDate DateTime2 NOT NULL,
-    DeletedDate DateTime2
+    DeletedDate DateTime2,
+
+    FOREIGN KEY (AirlineId) REFERENCES Airline
 );
 
 

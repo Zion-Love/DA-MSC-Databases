@@ -4,7 +4,7 @@ Installation steps:
 
 1. Open up your command line
 2. Navigate to DA-MSC-DATABASES/
-3. Create a python virtual environment (use venv if possible) python3 -m venv /.venv
+3. Create a python virtual environment (reccomend using venv) python3 -m venv /.venv
 4. Activate your virtual environment source ./.venv/bin/activate
 5. run pip install .
 
@@ -18,7 +18,7 @@ or in python 3
 
 python3 clientry.py \[COMMAND\] \[ARGS\]
 
-NOTE: you can run this install outside of a virtual environment though it wil install into your global pyhton directory meaning the .sqllite3 and any other data files will also get copied to those relative directories
+NOTE: you can run this install outside of a virtual environment though it wil install into your global python directory meaning the .sqllite3 and any other data files will also get copied to those relative directories
 
 
 To use the CLI type FlightManagementSoftware  using the -h flag to print the help page.

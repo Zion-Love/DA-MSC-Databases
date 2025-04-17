@@ -49,7 +49,6 @@ class Flight(EntityBase, Mappable):
                 AND f.DepartureTimeUTC > DATETIME('now')
         '''
         return cls.Map(QueryResult(qry, countryId, countryId))
-    
 
     def Create(self):
         Flight._Create(self)
@@ -59,5 +58,8 @@ class Flight(EntityBase, Mappable):
         Flight._Update(self)
 
 
+    # Here we dont actually need to delete the assigned pilots as well
+    # its okay to have a point in time refference of when a flight got deleted and retain
+    # the info on who was supposed to take that flight
     def Delete(self):
         Flight._Delete(self)

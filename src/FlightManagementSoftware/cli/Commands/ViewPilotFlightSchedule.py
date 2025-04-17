@@ -74,5 +74,5 @@ class ViewPilotFlightScheduleCommandParser(CommandParser):
             type=lambda x: AssertDateTimeString(x), 
             help="The end date to view the schedule to")
         
-        parser.add_argument('-del','-includeDeleted', action='store_true',help="Toggle to include deleted flights")
+        parser.add_argument('-del','--includeDeleted', action='store_true',help="Toggle to include deleted flights")
         parser.set_defaults(command=self.run)

@@ -24,6 +24,7 @@ from FlightManagementSoftware.cli.Commands.UpdateCountry import UpdateCountryCom
 from FlightManagementSoftware.cli.Commands.UpdateFlight import UpdateFlightCommandParser
 from FlightManagementSoftware.cli.Commands.UpdateFlightPath import UpdateFlightPathCommandParser
 from FlightManagementSoftware.cli.Commands.UpdateDestination import UpdateDestinationCommandParser
+from FlightManagementSoftware.cli.Commands.UpdatePilot import UpdatePilotCommandParser
 
 from FlightManagementSoftware.cli.Commands.ViewAirlines import ViewAirlinesCommandParser
 from FlightManagementSoftware.cli.Commands.ViewAirlinePilotSummary import ViewAirlinePilotSummaryCommandParser
@@ -135,10 +136,6 @@ commandMap = {
         "parser": ViewFlightPathsCommandParser,
         "help": "View FlightPaths matching criteria"
     },
-    "UpdateCountry": {
-        "parser": UpdateCountryCommandParser,
-        "help" : "Update a Country"
-    },
     "UpdateAirplane": {
         "parser": UpdateAirplaneCommandParser,
         "help": "Update an Airplanes Information"
@@ -146,6 +143,14 @@ commandMap = {
     "UpdateAirline": {
         "parser": UpdateAirlineCommandParser,
         "help": "Update an Airlines Information"
+    },
+    "UpdateCountry": {
+        "parser": UpdateCountryCommandParser,
+        "help" : "Update a Country"
+    },
+    "UpdateDestination": {
+        "parser": UpdateDestinationCommandParser,
+        "help": "Update Information for an existing destination"
     },
     "UpdateFlight": {
         "parser": UpdateFlightCommandParser,
@@ -155,9 +160,9 @@ commandMap = {
         "parser": UpdateFlightPathCommandParser,
         "help": "Update FlightPath Information"
     },
-    "UpdateDestination": {
-        "parser": UpdateDestinationCommandParser,
-        "help": "Update Information for an existing destination"
+    "UpdatePilot": {
+        "parser": UpdatePilotCommandParser,
+        "help": "Update Information for a Pilot"
     },
     "RebuildDatabase": {
         "parser": RebuildDatabaseCommandParser,

@@ -28,13 +28,8 @@ class Pilot(EntityBase, Mappable):
         Pilot._Update(self)
 
 
-    # for Pilot if we are softdeleting we still need to clean up
-    # PilotFlight to unassign this pilot from all their current flights
-    # having a wrapped call to _Delete lets me do this easily
     def Delete(self, pilotId = None):
         with dbConnectionInstance.Get_Transaction() as transaction:
-            # Uncompleted flights are either not departed (departureTime = null) OR departureTime is set in the future
-            # deleted flights should also be ignored here since we may need a record of the pilots at time of deletion
             deleteAssignedUncompleteFlightsQuery = '''
                 DELETE FROM PilotFlight WHERE PilotId = ? AND FlightId in (
                     SELECT f.Id from Flight f 

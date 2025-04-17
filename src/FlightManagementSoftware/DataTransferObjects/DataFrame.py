@@ -24,14 +24,12 @@ class DataFrame:
         
         self.type = _type
 
-        # construct an empty dataframe using the Mappable field names
-        # will silently handle empty query results
         if data == None or len(data) == 0:
             self.data = []
             return
         
         if(not all(type(d) == self.type for d in data)):
-            raise Exception(f"Data supllied to DataFrame does not match its assigned type {self.type}")
+            raise Exception(f"Data supplied to DataFrame does not match its assigned type {self.type}")
 
         self.data = data
         

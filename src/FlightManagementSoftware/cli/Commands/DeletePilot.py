@@ -5,6 +5,7 @@ from FlightManagementSoftware.cli.InputValidator import (
 )
 from FlightManagementSoftware.cli.CommandParser import CommandParser
 from FlightManagementSoftware.Entities.Pilot import Pilot
+from FlightManagementSoftware.Entities.Flight import Flight
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.cli.UserInputHelpers import AbortCommandException
 
@@ -27,6 +28,8 @@ class DeletePilotCommand(CommandHandler):
             raise AbortCommandException(f"No pilot with Id : {self.pilotId}")
         if self.existingPilot.DeletedDate != None:
             raise AbortCommandException(f"Pilot with Id : {self.pilotId} has already been deleted")
+        
+
 
 
     def Handle(self):

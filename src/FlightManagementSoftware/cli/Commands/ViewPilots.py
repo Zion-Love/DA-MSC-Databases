@@ -24,11 +24,11 @@ class ViewPilotsCommand(CommandHandler):
     pilotId : int | list[int] = None
 
     def Validate(self):
-        if self.pilotId:
-            if self.searchName == None:
+        if self.pilotId != None:
+            if self.searchName != None:
                 raise AbortCommandException("Cannot provide a SearchName when searching by Id(s)")
 
-        if not (self.searchName == None or isinstance(self.searchName,str)):
+        if self.searchName != None and not isinstance(self.searchName, str):
             raise AbortCommandException(f"Invalid searchName provided : {self.searchName}")
     
 
@@ -36,8 +36,11 @@ class ViewPilotsCommand(CommandHandler):
         pilots : DataFrame
         if self.pilotId:
             pilots = Pilot.QueryById(self.pilotId)
+        elif self.searchName != None: 
+            pilots = pilotRepository.QueryPilots(self.includeDeleted, self.searchName) 
+        else:
+            pilots = pilotRepository.QueryPilots(self.includeDeleted, None)
 
-        pilots = pilotRepository.QueryPilots(self.includeDeleted, self.searchName)    
         print(pilots)
         
 
@@ -47,7 +50,7 @@ class ViewPilotsCommandParser(CommandParser):
 
 
     def BuildCommandArgs(self, parser : ArgumentParser) -> ArgumentParser:
-        parser.add_argument("-d","-del","--includeDeleted", action='store_true', help='Toggles weather to show deleted pilots or not', dest='IncludeDeleted')
-        parser.add_argument("-n","--name","--searchName", nargs=1,type=str, help='Filters results fuzzy matching on name', dest='SearchName')
+        parser.add_argument("-d","-del","--includeDeleted", action='store_true', help='Toggles weather to show deleted pilots or not')
+        parser.add_argument("-n","-name","--searchName", type=str, help='Filters results fuzzy matching on name')
         parser.add_argument('-p','--pilotId', nargs='+', type=int, help="Pilot Id's to search for")
         parser.set_defaults(command=self.run)
