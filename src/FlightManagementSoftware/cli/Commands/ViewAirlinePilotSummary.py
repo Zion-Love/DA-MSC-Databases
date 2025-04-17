@@ -1,4 +1,3 @@
-# TODO
 from dataclasses import dataclass
 from FlightManagementSoftware.cli.CommandHandler import CommandHandler
 from FlightManagementSoftware.cli.CommandParser import CommandParser
