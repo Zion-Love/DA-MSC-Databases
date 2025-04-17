@@ -35,7 +35,7 @@ class ViewPilotsCommand(CommandHandler):
     def Handle(self):
         pilots : DataFrame
         if self.pilotId:
-            pilots = Pilot.QueryById(self.pilotId)
+            pilots = DataFrame(Pilot.QueryById(self.pilotId), Pilot)
         elif self.searchName != None: 
             pilots = pilotRepository.QueryPilots(self.includeDeleted, self.searchName) 
         else:
